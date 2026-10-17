@@ -16,10 +16,7 @@ export default async function FinanceReviewPage() {
   // Load all non-draft expenses for this company
   const { data: expenses, error } = await supabase
     .from('expenses')
-    .select(`
-      *,
-      memberships!expenses_employee_id_fkey(display_name, email)
-    `)
+    .select('*')
     .eq('company_id', session.company.id)
     .neq('review_status', 'draft')
     .order('created_at', { ascending: false });
