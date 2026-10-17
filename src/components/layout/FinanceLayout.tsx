@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import type { UserSession } from '@/types';
 import { cn, getInitials } from '@/lib/utils';
 import {
+  LayoutDashboard,
   ClipboardList,
   FileText,
   Upload,
@@ -15,6 +16,7 @@ import {
 import { useState } from 'react';
 
 const navigation = [
+  { label: 'Overview', href: '/dashboard/finance/overview', icon: LayoutDashboard },
   { label: 'Review Queue', href: '/dashboard/finance/review', icon: ClipboardList },
   { label: 'Policy', href: '/dashboard/finance/policy', icon: FileText },
   { label: 'Batch Import', href: '/dashboard/finance/batch', icon: Upload },
@@ -48,11 +50,11 @@ export function FinanceLayout({
       <aside className="w-56 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col sticky top-0 h-screen">
         {/* Logo */}
         <div className="h-14 flex items-center px-4 border-b border-gray-200">
-          <Link href="/dashboard/finance/review" className="flex items-center gap-2">
+          <Link href="/dashboard/finance/overview" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center">
               <span className="text-white font-bold text-xs">CL</span>
             </div>
-            <span className="font-semibold text-gray-900">ClaimLane</span>
+            <span className="font-semibold text-gray-900">ClaimLens</span>
           </Link>
         </div>
 

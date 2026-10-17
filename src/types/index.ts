@@ -1,4 +1,4 @@
-// ClaimLane – Shared TypeScript types
+// ClaimLens – Shared TypeScript types
 // These types mirror the database schema and are used across client and server.
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -33,6 +33,7 @@ export type ReviewEventType =
   | 'extraction_complete'
   | 'extraction_failed'
   | 'employee_correction'
+  | 'finance_adjustment'
   | 'evaluation_complete'
   | 'information_requested'
   | 'information_provided'
@@ -165,6 +166,16 @@ export interface BatchImport {
 
 // ─── Extraction ───────────────────────────────────────────────────────────────
 
+export interface AmountBreakdown {
+  items_subtotal: number | null;
+  tax: number | null;
+  printed_total: number | null;
+  handwritten_addition: number | null;
+  handwritten_addition_label: string | null;
+  final_total: number | null;
+  formula_explanation: string;
+}
+
 export interface ExtractionResult {
   merchant: ExtractionField<string>;
   invoice_number: ExtractionField<string>;
@@ -172,12 +183,18 @@ export interface ExtractionResult {
   normalized_date: ExtractionField<string>;        // ISO 8601
   printed_currency: ExtractionField<string>;
   normalized_currency: ExtractionField<string>;    // ISO 4217
+  currency_is_inferred?: boolean;
   subtotal: ExtractionField<number>;
   tax: ExtractionField<number>;
   service_charge: ExtractionField<number>;
   tip: ExtractionField<number>;
   discount: ExtractionField<number>;
   total: ExtractionField<number>;
+  printed_total?: ExtractionField<number>;
+  handwritten_addition?: ExtractionField<number>;
+  handwritten_addition_label?: string | null;
+  handwritten_final_total?: ExtractionField<number>;
+  amount_breakdown?: AmountBreakdown | null;
   line_items: LineItem[];
   itemization_completeness: 'complete' | 'partial' | 'none' | 'unclear';
   missing_fields: string[];
@@ -309,10 +326,12 @@ export type RuleOutcome = 'pass' | 'fail' | 'unknown' | 'not_applicable';
 export interface RuleResult {
   rule_id: string;
   rule_type: RuleType;
+  source_clause?: string;
   outcome: RuleOutcome;
   message: string;
   details: Record<string, unknown>;
   reimbursable_impact: number | null;
+  required_action?: string;
 }
 
 export interface DuplicateFinding {

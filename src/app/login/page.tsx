@@ -18,7 +18,7 @@ export default function LoginPage({
           <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center">
             <span className="text-white font-bold text-sm">CL</span>
           </div>
-          <span className="font-semibold text-gray-900 text-lg">ClaimLane</span>
+          <span className="font-semibold text-gray-900 text-lg">ClaimLens</span>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">

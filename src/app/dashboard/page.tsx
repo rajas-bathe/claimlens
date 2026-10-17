@@ -6,7 +6,7 @@ export default async function DashboardRedirectPage() {
   if (!session) redirect('/login');
   
   if (session.membership.role === 'finance') {
-    redirect('/dashboard/finance/review');
+    redirect('/dashboard/finance/overview');
   } else {
     redirect('/dashboard/expenses');
   }

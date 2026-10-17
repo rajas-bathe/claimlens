@@ -1,6 +1,6 @@
-# ClaimLane — Expense Review Web Application
+# ClaimLens — Expense Review Web Application
 
-ClaimLane is an intelligent expense review and compliance platform designed for modern finance teams and employees. It captures receipt documents, extracts structured data with Gemini AI, validates claim context against company policy rules with a deterministic policy engine, and surfaces exceptions for human review.
+ClaimLens is an intelligent expense review and compliance platform designed for modern finance teams and employees. It captures receipt documents, extracts structured data with Gemini AI, validates claim context against company policy rules with a deterministic policy engine, and surfaces exceptions for human review.
 
 ---
 

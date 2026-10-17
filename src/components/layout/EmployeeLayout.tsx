@@ -50,7 +50,7 @@ export function EmployeeLayout({
             <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-xs">CL</span>
             </div>
-            <span className="font-semibold text-gray-900 hidden sm:block">ClaimLane</span>
+            <span className="font-semibold text-gray-900 hidden sm:block">ClaimLens</span>
           </Link>
 
           {/* Nav links */}

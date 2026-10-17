@@ -3,10 +3,10 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'ClaimLane',
-    template: '%s | ClaimLane',
+    default: 'ClaimLens',
+    template: '%s | ClaimLens',
   },
-  description: 'Expense review and reimbursement for finance teams.',
+  description: 'Intelligent expense review, policy evaluation, and reimbursement for finance teams.',
 };
 
 export default function RootLayout({

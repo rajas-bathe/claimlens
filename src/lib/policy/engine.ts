@@ -2,9 +2,9 @@ import Decimal from 'decimal.js';
 import type {
   Expense,
   PolicyRule,
+  PolicyVersion,
   RuleResult,
   RuleOutcome,
-  Evaluation,
   SpendingContext,
   DuplicateFinding,
   TripContext,
@@ -13,6 +13,9 @@ import type {
 export interface EvaluationInput {
   expense: Expense;
   activePolicyRules: PolicyRule[];
+  applicablePolicy?: PolicyVersion | null;
+  policyEffectiveDateChecked?: boolean;
+  policyEffectiveFrom?: string | null;
   spendingHistory?: Expense[]; // Historical expenses within aggregation scope (e.g. same day/month)
   candidateDuplicates?: Expense[]; // Historical expenses for duplicate checking
 }
@@ -28,15 +31,19 @@ export interface EngineResult {
   notes: string[];
 }
 
-// Tier 1 High-Cost Cities (configurable in policy rules, standard defaults)
-const DEFAULT_TIER1_CITIES = ['new york', 'san francisco', 'london', 'zurich', 'tokyo', 'paris', 'geneva'];
-
 /**
  * Deterministic policy evaluator.
  * Evaluates all applicable rules and returns a structured, explainable breakdown.
  */
 export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
-  const { expense, activePolicyRules, spendingHistory = [], candidateDuplicates = [] } = input;
+  const {
+    expense,
+    activePolicyRules,
+    applicablePolicy,
+    spendingHistory = [],
+    candidateDuplicates = [],
+  } = input;
+
   const ruleResults: RuleResult[] = [];
   const notes: string[] = [];
   let hasFail = false;
@@ -48,25 +55,62 @@ export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
   const decimalAmount = rawAmount !== null && rawAmount !== undefined ? new Decimal(rawAmount) : null;
   let reimbursableDecimal = decimalAmount ? new Decimal(decimalAmount) : null;
 
-  // 1. Core Data Completeness & Integrity Checks
+  // 1. Policy Effective Date Check
+  const isOutsidePolicyWindow =
+    (applicablePolicy === null && input.policyEffectiveDateChecked) ||
+    (input.policyEffectiveFrom && expense.expense_date && expense.expense_date < input.policyEffectiveFrom) ||
+    (applicablePolicy && expense.expense_date && (
+      (applicablePolicy.effective_from && expense.expense_date < applicablePolicy.effective_from) ||
+      (applicablePolicy.effective_to && expense.expense_date > applicablePolicy.effective_to)
+    ));
+
+  if (isOutsidePolicyWindow) {
+    hasUnknown = true;
+    const effFrom = input.policyEffectiveFrom ?? applicablePolicy?.effective_from ?? 'unknown';
+    ruleResults.push({
+      rule_id: 'policy_effective_date_check',
+      rule_type: 'required_field',
+      source_clause: 'Policy Effective Window',
+      outcome: 'unknown',
+      message: `No active expense policy was effective on receipt date (${expense.expense_date ?? 'unspecified'}). Transaction predates policy effective date (${effFrom}).`,
+      details: {
+        expense_date: expense.expense_date,
+        policy_effective_from: effFrom,
+        relevant_inputs: `Expense Date: ${expense.expense_date ?? 'None'}, Policy Effective: ${effFrom}`,
+        calculation: 'Checked active policy versions; transaction predates policy effective window.',
+        required_next_action: 'Requires Finance review and manual policy assignment or override.',
+      },
+      reimbursable_impact: null,
+      required_action: 'Requires Finance review and manual policy assignment or override.',
+    });
+  }
+
+  // 2. Core Data Completeness & Integrity Checks
   evaluateDataCompleteness(expense, ruleResults);
 
-  // 2. Arithmetic Discrepancy Check
+  // 3. Arithmetic Discrepancy Check
   evaluateArithmeticIntegrity(expense, ruleResults);
 
-  // 3. Duplicate Detection
+  // 4. Duplicate Detection
   const duplicateFindings = checkDuplicates(expense, candidateDuplicates);
   if (duplicateFindings.length > 0) {
     const hasExact = duplicateFindings.some((d) => d.type === 'exact_hash');
     ruleResults.push({
       rule_id: 'integrity_duplicate_check',
       rule_type: 'required_field',
+      source_clause: 'Clause 1.1 (Submission Integrity)',
       outcome: hasExact ? 'fail' : 'unknown',
       message: hasExact
-        ? `Exact duplicate receipt detected (matches expense #${duplicateFindings[0].matched_expense_id.slice(0, 8)}).`
+        ? `Exact duplicate receipt detected (matches claim #${duplicateFindings[0].matched_expense_id.slice(0, 8)}).`
         : `Potential duplicate claim detected: ${duplicateFindings[0].note}`,
-      details: { findings: duplicateFindings },
+      details: {
+        findings: duplicateFindings,
+        relevant_inputs: `File hash: ${expense.receipt_file_hash ?? 'N/A'}, Amount: ${expense.original_amount}, Date: ${expense.expense_date}`,
+        calculation: hasExact ? 'Identical SHA-256 hash match' : 'Same date and amount within 1%',
+        required_next_action: hasExact ? 'Reject duplicate claim' : 'Finance reviewer to confirm or mark distinct',
+      },
       reimbursable_impact: hasExact ? 0 : null,
+      required_action: hasExact ? 'Reject duplicate claim' : 'Reviewer must verify distinct receipt',
     });
     if (hasExact && reimbursableDecimal) {
       reimbursableDecimal = new Decimal(0);
@@ -75,14 +119,21 @@ export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
     ruleResults.push({
       rule_id: 'integrity_duplicate_check',
       rule_type: 'required_field',
+      source_clause: 'Clause 1.1 (Submission Integrity)',
       outcome: 'pass',
       message: 'No duplicate submissions found across historical receipts.',
-      details: {},
+      details: {
+        relevant_inputs: `File hash: ${expense.receipt_file_hash ?? 'N/A'}`,
+        calculation: 'Zero matching hashes or candidate collision found',
+        required_next_action: 'None',
+      },
       reimbursable_impact: null,
+      required_action: 'None',
     });
   }
 
-  // 4. Spending Accumulation (Category & Daily Caps)
+  // 5. Spending Accumulation (Category & Daily Caps)
+  // Exclude current expense before calculating historical sum
   const categoryHistory = spendingHistory.filter(
     (h) =>
       h.id !== expense.id && // exclude current expense
@@ -112,7 +163,7 @@ export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
     expense_ids_included: includedIds,
   };
 
-  // 5. Evaluate Confirmed Structured Policy Rules
+  // 6. Evaluate Confirmed Structured Policy Rules
   for (const rule of activePolicyRules) {
     const res = evaluateIndividualRule({
       rule,
@@ -144,7 +195,7 @@ export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
     }
   }
 
-  // Determine overall outcome across ALL rules (completeness, arithmetic, duplicates, and policy)
+  // Determine overall outcome across ALL rules
   for (const r of ruleResults) {
     if (r.outcome === 'fail') {
       hasFail = true;
@@ -162,10 +213,16 @@ export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
     overallOutcome = 'needs_review';
   }
 
+  // Do not produce a final reimbursable amount when necessary evidence or policy interpretation remains unresolved
+  let finalReimbursable: number | null = null;
+  if (!hasUnknown) {
+    finalReimbursable = reimbursableDecimal ? reimbursableDecimal.toNumber() : 0;
+  }
+
   return {
     overall_outcome: overallOutcome,
     rule_results: ruleResults,
-    reimbursable_amount: reimbursableDecimal ? reimbursableDecimal.toNumber() : null,
+    reimbursable_amount: finalReimbursable,
     reimbursable_currency: currency,
     spending_context: spendingContext,
     duplicate_findings: duplicateFindings,
@@ -183,40 +240,73 @@ function evaluateDataCompleteness(expense: Expense, results: RuleResult[]) {
     results.push({
       rule_id: 'data_date_required',
       rule_type: 'required_field',
+      source_clause: 'Clause 1.1 (Receipt Date)',
       outcome: 'unknown',
       message: 'Receipt date is missing or ambiguous. Clarification is required.',
-      details: { field: 'expense_date' },
+      details: {
+        field: 'expense_date',
+        relevant_inputs: 'Date: null',
+        calculation: 'Field is empty',
+        required_next_action: 'Employee must confirm transaction date.',
+      },
       reimbursable_impact: null,
+      required_action: 'Provide transaction date',
     });
   } else {
     results.push({
       rule_id: 'data_date_required',
       rule_type: 'required_field',
+      source_clause: 'Clause 1.1 (Receipt Date)',
       outcome: 'pass',
       message: `Date confirmed: ${expense.expense_date}`,
-      details: { field: 'expense_date', value: expense.expense_date },
+      details: {
+        field: 'expense_date',
+        value: expense.expense_date,
+        relevant_inputs: `Date: ${expense.expense_date}`,
+        calculation: 'Valid ISO date format',
+        required_next_action: 'None',
+      },
       reimbursable_impact: null,
+      required_action: 'None',
     });
   }
 
   // Amount & Currency check
-  if (expense.original_amount === null || expense.original_amount === undefined || !expense.original_currency) {
+  const ext = expense.extraction_raw;
+  const isAmbiguousCurrency = ext?.printed_currency?.value === '$' && !ext?.normalized_currency?.value;
+  if (expense.original_amount === null || expense.original_amount === undefined || !expense.original_currency || isAmbiguousCurrency) {
     results.push({
       rule_id: 'data_amount_required',
       rule_type: 'required_field',
+      source_clause: 'Clause 1.1 & 6.1 (Amount & Currency)',
       outcome: 'unknown',
-      message: 'Expense amount or currency could not be determined from the receipt.',
-      details: { amount: expense.original_amount, currency: expense.original_currency },
+      message: 'Expense amount or currency code could not be determined unambiguously from the receipt.',
+      details: {
+        amount: expense.original_amount,
+        currency: expense.original_currency,
+        relevant_inputs: `Amount: ${expense.original_amount ?? 'null'}, Currency: ${expense.original_currency ?? 'unspecified'}`,
+        calculation: 'Missing valid currency ISO code or numeric total',
+        required_next_action: 'Confirm amount and ISO currency code before reimbursement.',
+      },
       reimbursable_impact: null,
+      required_action: 'Confirm amount and currency',
     });
   } else {
     results.push({
       rule_id: 'data_amount_required',
       rule_type: 'required_field',
+      source_clause: 'Clause 1.1 & 6.1 (Amount & Currency)',
       outcome: 'pass',
       message: `Amount confirmed: ${expense.original_amount} ${expense.original_currency}`,
-      details: { amount: expense.original_amount, currency: expense.original_currency },
+      details: {
+        amount: expense.original_amount,
+        currency: expense.original_currency,
+        relevant_inputs: `${expense.original_amount} ${expense.original_currency}`,
+        calculation: 'Valid numeric amount and ISO currency',
+        required_next_action: 'None',
+      },
       reimbursable_impact: null,
+      required_action: 'None',
     });
   }
 
@@ -226,19 +316,33 @@ function evaluateDataCompleteness(expense: Expense, results: RuleResult[]) {
       results.push({
         rule_id: 'policy_client_name_required',
         rule_type: 'client_entertainment_requirement',
+        source_clause: 'Clause 3.1 (Client Name Mandatory)',
         outcome: 'fail',
         message: 'Client entertainment claims require a verified Client Name (Clause 3.1).',
-        details: { missing_field: 'client_name' },
+        details: {
+          missing_field: 'client_name',
+          relevant_inputs: 'Category: Client entertainment, Client Name: None',
+          calculation: 'Mandatory field check failed',
+          required_next_action: 'Employee must supply verified Client/Company name.',
+        },
         reimbursable_impact: null,
+        required_action: 'Provide verified Client Name',
       });
     } else {
       results.push({
         rule_id: 'policy_client_name_required',
         rule_type: 'client_entertainment_requirement',
+        source_clause: 'Clause 3.1 (Client Name Mandatory)',
         outcome: 'pass',
         message: `Client identified: ${expense.client_name}`,
-        details: { client_name: expense.client_name },
+        details: {
+          client_name: expense.client_name,
+          relevant_inputs: `Client Name: ${expense.client_name}`,
+          calculation: 'Verified client name provided',
+          required_next_action: 'None',
+        },
         reimbursable_impact: null,
+        required_action: 'None',
       });
     }
 
@@ -246,16 +350,22 @@ function evaluateDataCompleteness(expense: Expense, results: RuleResult[]) {
       results.push({
         rule_id: 'policy_client_attendees_required',
         rule_type: 'client_entertainment_requirement',
+        source_clause: 'Clause 3.1 (Attendee Count)',
         outcome: 'unknown',
-        message: 'Total attendee count is required to evaluate per-person entertainment limits.',
-        details: { missing_field: 'attendee_count' },
+        message: 'Total attendee count is required to evaluate per-person entertainment limits (Clause 3.1).',
+        details: {
+          missing_field: 'attendee_count',
+          relevant_inputs: 'Attendee count: null',
+          calculation: 'Cannot compute per-attendee cap without head count',
+          required_next_action: 'Employee must provide total number of attendees.',
+        },
         reimbursable_impact: null,
+        required_action: 'Provide attendee count',
       });
     }
   }
 
   // Itemization check for lodging & high-value meals
-  const ext = expense.extraction_raw;
   const isHotel = expense.category?.toLowerCase().includes('accommodation') || expense.category?.toLowerCase().includes('hotel');
   const isHighMeal = expense.category?.toLowerCase().includes('meal') && (expense.original_amount ?? 0) > 50;
 
@@ -264,19 +374,35 @@ function evaluateDataCompleteness(expense: Expense, results: RuleResult[]) {
       results.push({
         rule_id: 'policy_itemization_mandatory',
         rule_type: 'itemization_requirement',
+        source_clause: 'Clause 1.2 (Mandatory Itemization)',
         outcome: 'fail',
         message: 'Itemized receipt is mandatory for hotel stays and meals exceeding $50 (Clause 1.2). Incomplete itemization does not pass item restrictions.',
-        details: { category: expense.category, itemization_status: ext.itemization_completeness },
+        details: {
+          category: expense.category,
+          amount: expense.original_amount,
+          itemization_status: ext.itemization_completeness,
+          relevant_inputs: `Amount: $${expense.original_amount}, Completeness: ${ext.itemization_completeness}`,
+          calculation: 'Amount > $50 and itemization completeness is none/unclear',
+          required_next_action: 'Employee must attach itemized breakdown or bill folio.',
+        },
         reimbursable_impact: null,
+        required_action: 'Attach itemized receipt',
       });
     } else {
       results.push({
         rule_id: 'policy_itemization_mandatory',
         rule_type: 'itemization_requirement',
+        source_clause: 'Clause 1.2 (Mandatory Itemization)',
         outcome: 'pass',
         message: 'Itemization completeness verified for high-value claim.',
-        details: { itemization_status: ext?.itemization_completeness ?? 'provided' },
+        details: {
+          itemization_status: ext?.itemization_completeness ?? 'provided',
+          relevant_inputs: `Completeness: ${ext?.itemization_completeness ?? 'complete'}`,
+          calculation: 'Itemized lines present and verified',
+          required_next_action: 'None',
+        },
         reimbursable_impact: null,
+        required_action: 'None',
       });
     }
   }
@@ -289,24 +415,41 @@ function evaluateArithmeticIntegrity(expense: Expense, results: RuleResult[]) {
   const ext = expense.extraction_raw;
   if (!ext || !ext.arithmetic_check) return;
 
-  const { calculated_total, printed_total, discrepancy } = ext.arithmetic_check;
-  if (discrepancy !== null && Math.abs(discrepancy) > 0.01) {
+  const { calculated_total, printed_total, discrepancy, note } = ext.arithmetic_check;
+  if (discrepancy !== null && Math.abs(discrepancy) > 0.02) {
     results.push({
       rule_id: 'integrity_arithmetic_check',
       rule_type: 'required_field',
+      source_clause: 'Clause 1.3 (Arithmetic Verification)',
       outcome: 'fail',
-      message: `Arithmetic inconsistency: printed total (${printed_total}) differs from calculated item sum (${calculated_total}) by ${discrepancy}. Explanation required before reimbursement (Clause 1.3).`,
-      details: { printed_total, calculated_total, discrepancy },
+      message: `Arithmetic inconsistency: printed total differs from calculated item sum by ${discrepancy.toFixed(2)}. ${note}`,
+      details: {
+        printed_total,
+        calculated_total,
+        discrepancy,
+        relevant_inputs: `Printed: ${printed_total}, Calculated: ${calculated_total}, Diff: ${discrepancy}`,
+        calculation: `${calculated_total} != ${printed_total} (diff: ${discrepancy})`,
+        required_next_action: 'Explanation or correction required prior to approval (Clause 1.3).',
+      },
       reimbursable_impact: null,
+      required_action: 'Clarify arithmetic inconsistency',
     });
   } else if (printed_total !== null && calculated_total !== null) {
     results.push({
       rule_id: 'integrity_arithmetic_check',
       rule_type: 'required_field',
+      source_clause: 'Clause 1.3 (Arithmetic Verification)',
       outcome: 'pass',
-      message: `Arithmetic check passed: printed total matches sum of line items (${printed_total}).`,
-      details: { printed_total, calculated_total },
+      message: `Arithmetic check passed: line items and taxes reconcile with total (${printed_total}).`,
+      details: {
+        printed_total,
+        calculated_total,
+        relevant_inputs: `Total: ${printed_total}`,
+        calculation: 'Reconciled within 0.02 tolerance',
+        required_next_action: 'None',
+      },
       reimbursable_impact: null,
+      required_action: 'None',
     });
   }
 }
@@ -331,10 +474,12 @@ function evaluateIndividualRule(args: {
       return {
         rule_id: rule.id,
         rule_type: rule.type,
+        source_clause: rule.source_clause,
         outcome: 'not_applicable',
         message: `Rule applies only to categories: ${rule.categories.join(', ')}`,
-        details: {},
+        details: { rule_categories: rule.categories, expense_category: expense.category },
         reimbursable_impact: null,
+        required_action: 'None',
       };
     }
   }
@@ -345,27 +490,36 @@ function evaluateIndividualRule(args: {
       return {
         rule_id: rule.id,
         rule_type: rule.type,
+        source_clause: rule.source_clause,
         outcome: 'unknown',
         message: 'Trip context (office vs business trip) is missing and required to evaluate this rule.',
-        details: { required_context: rule.trip_contexts },
+        details: {
+          required_context: rule.trip_contexts,
+          relevant_inputs: 'Trip context: null',
+          calculation: 'Cannot evaluate without trip context',
+          required_next_action: 'Employee must confirm whether expense occurred on business trip or local office.',
+        },
         reimbursable_impact: null,
+        required_action: 'Select trip context (business trip or local office)',
       };
     }
     if (!rule.trip_contexts.includes(expense.trip_context)) {
       return {
         rule_id: rule.id,
         rule_type: rule.type,
+        source_clause: rule.source_clause,
         outcome: 'not_applicable',
         message: `Rule applies to ${rule.trip_contexts.join(', ')}, but claim context is ${expense.trip_context}.`,
-        details: {},
+        details: { rule_contexts: rule.trip_contexts, claim_context: expense.trip_context },
         reimbursable_impact: null,
+        required_action: 'None',
       };
     }
   }
 
-  // City Tier Check
+  // City Tier Check based on policy rule configured cities
   const expenseCity = expense.city?.trim().toLowerCase() ?? '';
-  const isTier1City = DEFAULT_TIER1_CITIES.includes(expenseCity) || (rule.cities && rule.cities.some((c) => c.toLowerCase() === expenseCity));
+  const isConfiguredTier1 = rule.cities && rule.cities.some((c) => c.toLowerCase() === expenseCity);
 
   // Switch by rule type
   switch (rule.type) {
@@ -374,10 +528,16 @@ function evaluateIndividualRule(args: {
         return {
           rule_id: rule.id,
           rule_type: rule.type,
+          source_clause: rule.source_clause,
           outcome: 'unknown',
           message: 'Cannot evaluate expense cap without confirmed amount.',
-          details: {},
+          details: {
+            relevant_inputs: 'Amount: null',
+            calculation: 'Missing amount',
+            required_next_action: 'Confirm amount',
+          },
           reimbursable_impact: null,
+          required_action: 'Confirm expense amount',
         };
       }
       let limit = new Decimal(rule.limit ?? 0);
@@ -392,19 +552,35 @@ function evaluateIndividualRule(args: {
         return {
           rule_id: rule.id,
           rule_type: rule.type,
+          source_clause: rule.source_clause,
           outcome: 'fail',
           message: `Amount ${decimalAmount.toFixed(2)} ${currency} exceeds per-expense limit of ${limit.toFixed(2)} ${rule.limit_currency ?? currency} (${rule.source_clause}).`,
-          details: { amount: decimalAmount.toNumber(), limit: limit.toNumber() },
+          details: {
+            amount: decimalAmount.toNumber(),
+            limit: limit.toNumber(),
+            relevant_inputs: `Amount: $${decimalAmount.toFixed(2)}, Limit: $${limit.toFixed(2)}`,
+            calculation: `${decimalAmount.toFixed(2)} > ${limit.toFixed(2)}`,
+            required_next_action: 'Requires Finance review and decision on partial reimbursement.',
+          },
           reimbursable_impact: limit.toNumber(),
+          required_action: 'Finance approval required for excess spend',
         };
       }
       return {
         rule_id: rule.id,
         rule_type: rule.type,
+        source_clause: rule.source_clause,
         outcome: 'pass',
         message: `Amount ${decimalAmount.toFixed(2)} ${currency} is within limit of ${limit.toFixed(2)} ${rule.limit_currency ?? currency}.`,
-        details: { amount: decimalAmount.toNumber(), limit: limit.toNumber() },
+        details: {
+          amount: decimalAmount.toNumber(),
+          limit: limit.toNumber(),
+          relevant_inputs: `Amount: $${decimalAmount.toFixed(2)}, Limit: $${limit.toFixed(2)}`,
+          calculation: `${decimalAmount.toFixed(2)} <= ${limit.toFixed(2)}`,
+          required_next_action: 'None',
+        },
         reimbursable_impact: null,
+        required_action: 'None',
       };
     }
 
@@ -414,18 +590,23 @@ function evaluateIndividualRule(args: {
         return {
           rule_id: rule.id,
           rule_type: rule.type,
+          source_clause: rule.source_clause,
           outcome: 'unknown',
           message: 'Cannot evaluate daily cap without confirmed amount.',
-          details: {},
+          details: {
+            relevant_inputs: 'Amount: null',
+            calculation: 'Missing amount',
+            required_next_action: 'Confirm amount',
+          },
           reimbursable_impact: null,
+          required_action: 'Confirm expense amount',
         };
       }
 
-      // City-specific limit override if configured
+      // City-specific tier limit: if city is in rule.cities and travel meal clause specifies $100
       let limitValue = rule.limit ?? 0;
-      if (isTier1City && (rule.categories?.includes('Business meals') || rule.categories?.includes('Accommodation'))) {
-        // High cost city bonus
-        limitValue = limitValue * 1.33333333; // e.g. $75 -> $100
+      if (isConfiguredTier1 && rule.categories?.includes('Business meals') && rule.source_clause.includes('2.3')) {
+        limitValue = 100.0; // Clause 2.3 elevated tier 1 daily limit
       }
 
       const limit = new Decimal(limitValue).toDecimalPlaces(2);
@@ -436,6 +617,7 @@ function evaluateIndividualRule(args: {
         return {
           rule_id: rule.id,
           rule_type: rule.type,
+          source_clause: rule.source_clause,
           outcome: 'fail',
           message: `Daily category spending of ${combinedSum.toFixed(2)} ${currency} (prior ${priorSum.toFixed(2)} + this ${decimalAmount.toFixed(2)}) exceeds daily cap of ${limit.toFixed(2)} ${rule.limit_currency ?? currency} (${rule.source_clause}).`,
           details: {
@@ -443,15 +625,20 @@ function evaluateIndividualRule(args: {
             current_amount: decimalAmount.toNumber(),
             combined_total: combinedSum.toNumber(),
             daily_limit: limit.toNumber(),
-            is_tier_1_city: isTier1City,
+            is_tier_1_city: isConfiguredTier1,
+            relevant_inputs: `Current: $${decimalAmount.toFixed(2)}, Prior same-day: $${priorSum.toFixed(2)}, Cap: $${limit.toFixed(2)}`,
+            calculation: `Combined $${combinedSum.toFixed(2)} exceeds cap $${limit.toFixed(2)} by $${combinedSum.minus(limit).toFixed(2)}`,
+            required_next_action: 'Reimbursement capped at remaining daily allowance. Excess requires finance override.',
           },
           reimbursable_impact: remainingDailyAllowance.toNumber(),
+          required_action: 'Finance approval required for excess over daily cap',
         };
       }
 
       return {
         rule_id: rule.id,
         rule_type: rule.type,
+        source_clause: rule.source_clause,
         outcome: 'pass',
         message: `Combined daily spending of ${combinedSum.toFixed(2)} ${currency} is within daily limit of ${limit.toFixed(2)} ${rule.limit_currency ?? currency}.`,
         details: {
@@ -459,9 +646,13 @@ function evaluateIndividualRule(args: {
           current_amount: decimalAmount.toNumber(),
           combined_total: combinedSum.toNumber(),
           daily_limit: limit.toNumber(),
-          is_tier_1_city: isTier1City,
+          is_tier_1_city: isConfiguredTier1,
+          relevant_inputs: `Combined: $${combinedSum.toFixed(2)}, Cap: $${limit.toFixed(2)}`,
+          calculation: `${combinedSum.toFixed(2)} <= ${limit.toFixed(2)}`,
+          required_next_action: 'None',
         },
         reimbursable_impact: null,
+        required_action: 'None',
       };
     }
 
@@ -470,10 +661,12 @@ function evaluateIndividualRule(args: {
         return {
           rule_id: rule.id,
           rule_type: rule.type,
+          source_clause: rule.source_clause,
           outcome: 'not_applicable',
           message: 'Approval threshold check pending amount confirmation.',
           details: {},
           reimbursable_impact: null,
+          required_action: 'None',
         };
       }
       const threshold = new Decimal(rule.limit ?? 0);
@@ -481,49 +674,80 @@ function evaluateIndividualRule(args: {
       return {
         rule_id: rule.id,
         rule_type: rule.type,
+        source_clause: rule.source_clause,
         outcome: 'pass', // Exceeding threshold is an escalation flag, NOT a policy violation
         message: exceeded
           ? `Amount ${decimalAmount.toFixed(2)} ${currency} exceeds approval threshold of ${threshold.toFixed(2)} ${currency} (${rule.source_clause}) — flagged for Executive Approval.`
           : `Amount is below the executive approval threshold (${threshold.toFixed(2)} ${currency}).`,
-        details: { threshold_triggered: exceeded, threshold: threshold.toNumber(), amount: decimalAmount.toNumber() },
+        details: {
+          threshold_triggered: exceeded,
+          threshold: threshold.toNumber(),
+          amount: decimalAmount.toNumber(),
+          relevant_inputs: `Amount: $${decimalAmount.toFixed(2)}, Threshold: $${threshold.toFixed(2)}`,
+          calculation: exceeded ? 'Escalation threshold reached' : 'Standard review queue',
+          required_next_action: exceeded ? 'Senior Executive sign-off required' : 'Standard finance review',
+        },
         reimbursable_impact: null,
+        required_action: exceeded ? 'Executive review and sign-off required' : 'None',
       };
     }
 
     case 'prohibited_item': {
       const ext = expense.extraction_raw;
       const prohibitedValues = (rule.prohibited_values ?? []).map((p) => p.toLowerCase());
-      const matchedItems: string[] = [];
+      const matchedItems: Array<{ desc: string; amount: number | null }> = [];
 
       if (ext && ext.line_items) {
         for (const item of ext.line_items) {
           const desc = item.description?.toLowerCase() ?? '';
           for (const p of prohibitedValues) {
             if (desc.includes(p)) {
-              matchedItems.push(item.description ?? p);
+              matchedItems.push({ desc: item.description ?? p, amount: item.amount ?? null });
             }
           }
         }
       }
 
       if (matchedItems.length > 0) {
+        // Calculate non-reimbursable portion
+        const prohibitedSum = matchedItems.reduce((acc, i) => acc + (i.amount ?? 0), 0);
+        const itemNames = matchedItems.map((i) => i.desc).join(', ');
+        const totalAmount = decimalAmount?.toNumber() ?? 0;
+        const adjustedReimbursable = Math.max(0, totalAmount - prohibitedSum);
+
         return {
           rule_id: rule.id,
           rule_type: rule.type,
+          source_clause: rule.source_clause,
           outcome: 'fail',
-          message: `Prohibited items detected on receipt: ${matchedItems.join(', ')} (${rule.source_clause}). Non-reimbursable.`,
-          details: { prohibited_items: matchedItems },
-          reimbursable_impact: 0,
+          message: `Prohibited items detected on receipt: ${itemNames} (${rule.source_clause}). Non-reimbursable items deducted.`,
+          details: {
+            prohibited_items: matchedItems,
+            prohibited_sum: prohibitedSum,
+            total_amount: totalAmount,
+            adjusted_reimbursable: adjustedReimbursable,
+            relevant_inputs: `Prohibited items: ${itemNames} ($${prohibitedSum.toFixed(2)})`,
+            calculation: `Deducted prohibited item amount $${prohibitedSum.toFixed(2)} from total $${totalAmount.toFixed(2)}`,
+            required_next_action: 'Item amount deducted from reimbursement. Requires finance confirmation.',
+          },
+          reimbursable_impact: adjustedReimbursable,
+          required_action: 'Finance must confirm deduction of prohibited items',
         };
       }
 
       return {
         rule_id: rule.id,
         rule_type: rule.type,
+        source_clause: rule.source_clause,
         outcome: 'pass',
         message: 'No prohibited items identified in receipt line items.',
-        details: {},
+        details: {
+          relevant_inputs: 'Line items scanned for prohibited keywords',
+          calculation: 'Zero matching prohibited terms found',
+          required_next_action: 'None',
+        },
         reimbursable_impact: null,
+        required_action: 'None',
       };
     }
 
@@ -531,10 +755,12 @@ function evaluateIndividualRule(args: {
       return {
         rule_id: rule.id,
         rule_type: rule.type,
+        source_clause: rule.source_clause,
         outcome: 'pass',
         message: `Rule ${rule.id} validated.`,
-        details: {},
+        details: { relevant_inputs: 'Default handler', calculation: 'Pass', required_next_action: 'None' },
         reimbursable_impact: null,
+        required_action: 'None',
       };
   }
 }
@@ -599,21 +825,10 @@ export function checkDuplicates(target: Expense, history: Expense[]): DuplicateF
       differingFields.push('merchant');
     }
 
-    // Currency match
-    if (target.original_currency && candidate.original_currency && target.original_currency === candidate.original_currency) {
-      matchingFields.push('currency');
-    }
-
-    // Employee context
-    const isSameEmployee = target.employee_id === candidate.employee_id;
-    if (isSameEmployee) {
-      matchingFields.push('employee');
-    } else {
-      differingFields.push('different_employee');
-    }
-
-    // Probable duplicate condition: Merchant + Date + Amount match
-    if (matchingFields.includes('amount') && matchingFields.includes('date') && matchingFields.includes('merchant')) {
+    if (matchingFields.length >= 3) {
+      const isCrossEmployee = Boolean(
+        candidate.employee_id && target.employee_id && candidate.employee_id !== target.employee_id
+      );
       findings.push({
         type: 'probable',
         matched_expense_id: candidate.id,
@@ -622,9 +837,9 @@ export function checkDuplicates(target: Expense, history: Expense[]): DuplicateF
         matched_amount: candidate.original_amount,
         matching_fields: matchingFields,
         differing_fields: differingFields,
-        note: isSameEmployee
-          ? `Identical merchant, date, and amount submitted on another claim by this employee.`
-          : `Identical merchant, date, and amount submitted by another employee (#${candidate.employee_id.slice(0, 8)}). Possible shared bill or duplicate reimbursement attempt.`,
+        note: isCrossEmployee
+          ? `Probable duplicate: matches merchant "${candidate.merchant}", date "${candidate.expense_date}", and amount ${candidate.original_amount} previously submitted by another employee.`
+          : `Probable duplicate: matches merchant "${candidate.merchant}", date "${candidate.expense_date}", and amount ${candidate.original_amount}.`,
       });
     }
   }

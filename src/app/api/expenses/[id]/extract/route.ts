@@ -79,23 +79,28 @@ export async function POST(
       );
     }
 
+    // Compute authoritative SHA-256 hash from server buffer
+    const crypto = await import('node:crypto');
+    const serverHash = crypto.createHash('sha256').update(buffer).digest('hex');
+
     // Determine which fields to denormalize
     const updateData: Record<string, unknown> = {
       processing_status: 'extracted',
+      receipt_file_hash: serverHash,
       extraction_raw: extraction,
       extraction_at: new Date().toISOString(),
-      extraction_model: process.env.GEMINI_MODEL ?? 'gemini-2.5-flash',
+      extraction_model: process.env.GEMINI_MODEL ?? 'gemini-3.8-flash',
       extraction_error: null,
       version: expense.version + 2, // +2 because we already bumped once above
     };
 
     // Only set denormalized fields if not already confirmed by user
     const confirmed = (expense.confirmed_fields as Record<string, unknown>) ?? {};
-    if (!confirmed.merchant) updateData.merchant = extraction.merchant.value;
-    if (!confirmed.expense_date) updateData.expense_date = extraction.normalized_date.value;
-    if (!confirmed.original_currency) updateData.original_currency = extraction.normalized_currency.value;
-    if (!confirmed.original_amount && extraction.total.value !== null) {
-      updateData.original_amount = extraction.total.value;
+    if (!confirmed.merchant) updateData.merchant = extraction.merchant?.value;
+    if (!confirmed.expense_date) updateData.expense_date = extraction.normalized_date?.value ?? extraction.printed_date?.value;
+    if (!confirmed.original_currency) updateData.original_currency = extraction.normalized_currency?.value ?? extraction.printed_currency?.value;
+    if (!confirmed.original_amount) {
+      updateData.original_amount = extraction.amount_breakdown?.final_total ?? extraction.total?.value ?? null;
     }
 
     await supabase

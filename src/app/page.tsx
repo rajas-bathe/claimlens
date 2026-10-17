@@ -11,7 +11,7 @@ export default function LandingPage() {
             <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center">
               <span className="text-white font-bold text-xs">CL</span>
             </div>
-            <span className="font-semibold text-gray-900">ClaimLane</span>
+            <span className="font-semibold text-gray-900">ClaimLens</span>
           </div>
           <Link
             href="/login"
@@ -32,7 +32,7 @@ export default function LandingPage() {
               <span className="text-blue-600">respects your time.</span>
             </h1>
             <p className="mt-5 text-lg text-gray-600 leading-relaxed">
-              ClaimLane extracts receipt data, evaluates claims against your company
+              ClaimLens extracts receipt data, evaluates claims against your company
               policy, and routes only genuine exceptions to your finance team —
               so routine reimbursements happen without manual work.
             </p>
@@ -58,7 +58,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="font-semibold text-gray-900">Automated extraction</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Upload a receipt image or PDF. ClaimLane reads the merchant,
+                  Upload a receipt image or PDF. ClaimLens reads the merchant,
                   date, amounts, and line items — including handwritten or
                   damaged receipts — and flags anything it cannot determine.
                 </p>
@@ -94,7 +94,7 @@ export default function LandingPage() {
       <footer className="border-t border-gray-100">
         <div className="max-w-5xl mx-auto px-6 h-12 flex items-center">
           <p className="text-xs text-gray-400">
-            ClaimLane — Expense Review Workspace
+            ClaimLens — Expense Review Workspace
           </p>
         </div>
       </footer>

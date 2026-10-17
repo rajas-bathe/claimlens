@@ -13,6 +13,7 @@ import {
   Search,
   Filter,
   ReceiptText,
+  AlertTriangle,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -77,13 +78,64 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function getNextActionBadge(status: string) {
+  switch (status) {
+    case 'needs_information':
+      return (
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+          <AlertTriangle className="w-3 h-3 text-amber-600 flex-shrink-0" />
+          Action Required: Clarification Needed
+        </span>
+      );
+    case 'draft':
+      return (
+        <span className="text-[11px] text-gray-600 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded">
+          Draft · Ready to submit
+        </span>
+      );
+    case 'submitted':
+      return (
+        <span className="text-[11px] text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+          Awaiting policy checks
+        </span>
+      );
+    case 'needs_review':
+      return (
+        <span className="text-[11px] text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded">
+          In Finance review queue
+        </span>
+      );
+    case 'ready_for_approval':
+      return (
+        <span className="text-[11px] text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded font-medium">
+          Passed checks · Queued for approval
+        </span>
+      );
+    case 'approved':
+      return (
+        <span className="text-[11px] text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded font-medium">
+          Approved for reimbursement
+        </span>
+      );
+    case 'rejected':
+      return (
+        <span className="text-[11px] text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded">
+          Rejected by Finance
+        </span>
+      );
+    default:
+      return null;
+  }
+}
+
 const FILTER_OPTIONS = [
   { value: 'all', label: 'All' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'submitted', label: 'Submitted' },
-  { value: 'needs_information', label: 'Info needed' },
+  { value: 'needs_information', label: 'Action required' },
+  { value: 'submitted', label: 'In review' },
+  { value: 'ready_for_approval', label: 'Ready' },
   { value: 'approved', label: 'Approved' },
   { value: 'rejected', label: 'Rejected' },
+  { value: 'draft', label: 'Draft' },
 ];
 
 export function ExpenseList({ expenses }: { expenses: Expense[] }) {
@@ -91,8 +143,14 @@ export function ExpenseList({ expenses }: { expenses: Expense[] }) {
   const [statusFilter, setStatusFilter] = useState('all');
 
   const filtered = expenses.filter((e) => {
-    const matchesStatus =
-      statusFilter === 'all' || e.review_status === statusFilter;
+    let matchesStatus = false;
+    if (statusFilter === 'all') matchesStatus = true;
+    else if (statusFilter === 'submitted') {
+      matchesStatus = e.review_status === 'submitted' || e.review_status === 'needs_review';
+    } else {
+      matchesStatus = e.review_status === statusFilter;
+    }
+
     const q = search.toLowerCase();
     const matchesSearch =
       !q ||
@@ -136,20 +194,23 @@ export function ExpenseList({ expenses }: { expenses: Expense[] }) {
       {filtered.length === 0 ? (
         <EmptyState hasExpenses={expenses.length > 0} />
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50">
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Merchant / Category
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide hidden md:table-cell">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider hidden md:table-cell">
                   Date
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide tabular-nums">
+                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider tabular-nums">
                   Amount
                 </th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide hidden sm:table-cell">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider hidden sm:table-cell">
+                  Next Action
+                </th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider hidden lg:table-cell">
                   Status
                 </th>
                 <th className="px-4 py-3 w-8" aria-label="Actions" />
@@ -171,7 +232,7 @@ function ExpenseRow({ expense }: { expense: Expense }) {
   return (
     <tr className="hover:bg-gray-50 transition-colors group">
       <td className="px-4 py-3">
-        <div className="font-medium text-gray-900 truncate max-w-[200px]">
+        <div className="font-semibold text-gray-900 truncate max-w-[200px]">
           {expense.merchant ?? (
             <span className="text-gray-400 italic">No merchant</span>
           )}
@@ -181,15 +242,18 @@ function ExpenseRow({ expense }: { expense: Expense }) {
           {expense.city ? ` · ${expense.city}` : ''}
         </div>
         {/* Show status on mobile */}
-        <div className="sm:hidden mt-1">
+        <div className="sm:hidden mt-1.5 flex flex-col gap-1">
           <StatusBadge status={expense.review_status} />
+          {expense.review_status === 'needs_information' && (
+            <span className="text-[11px] text-amber-700 font-medium">Action Required</span>
+          )}
         </div>
       </td>
       <td className="px-4 py-3 text-gray-600 hidden md:table-cell whitespace-nowrap">
         {formatDate(expense.expense_date)}
       </td>
-      <td className="px-4 py-3 text-right tabular-nums">
-        <div className="font-medium text-gray-900">
+      <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">
+        <div className="font-semibold text-gray-900">
           {formatCurrency(expense.original_amount, expense.original_currency)}
         </div>
         {expense.converted_currency &&
@@ -203,13 +267,18 @@ function ExpenseRow({ expense }: { expense: Expense }) {
             </div>
           )}
       </td>
-      <td className="px-4 py-3 text-center hidden sm:table-cell">
+      {/* Next Action Column */}
+      <td className="px-4 py-3 hidden sm:table-cell">
+        {getNextActionBadge(expense.review_status)}
+      </td>
+      {/* Status Badge */}
+      <td className="px-4 py-3 text-center hidden lg:table-cell whitespace-nowrap">
         <StatusBadge status={expense.review_status} />
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-3 text-right">
         <Link
           href={`/dashboard/expenses/${expense.id}`}
-          className="flex items-center justify-center text-gray-300 group-hover:text-gray-500 transition-colors rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-1 p-1"
+          className="flex items-center justify-center text-gray-400 group-hover:text-blue-600 transition-colors rounded-md p-1"
           aria-label="View expense details"
         >
           <ChevronRight className="w-4 h-4" />
@@ -221,7 +290,7 @@ function ExpenseRow({ expense }: { expense: Expense }) {
 
 function EmptyState({ hasExpenses }: { hasExpenses: boolean }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+    <div className="bg-white border border-gray-200 rounded-lg p-12 text-center shadow-sm">
       <ReceiptText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
       {hasExpenses ? (
         <>
