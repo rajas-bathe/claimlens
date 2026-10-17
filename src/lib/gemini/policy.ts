@@ -107,30 +107,54 @@ export async function structurePolicyDocument(documentText: string): Promise<Str
   }
 
   const ai = new GoogleGenAI({ apiKey });
+  const candidateModels = Array.from(
+    new Set([
+      process.env.GEMINI_MODEL,
+      'gemini-3-flash-preview',
+      'gemini-3.5-flash',
+      'gemini-3.8-flash',
+    ].filter(Boolean) as string[])
+  );
 
-  const response = await ai.models.generateContent({
-    model: GEMINI_MODEL,
-    contents: [
-      {
-        role: 'user',
-        parts: [
+  let response: { text?: string | null } | null = null;
+  let lastError: Error | null = null;
+
+  for (const model of candidateModels) {
+    try {
+      const res = await ai.models.generateContent({
+        model,
+        contents: [
           {
-            text: `Analyze and structure this company expense policy document:\n\n${documentText}`,
+            role: 'user',
+            parts: [
+              {
+                text: `Analyze and structure this company expense policy document:\n\n${documentText}`,
+              },
+            ],
           },
         ],
-      },
-    ],
-    config: {
-      systemInstruction: POLICY_STRUCTURING_PROMPT,
-      responseMimeType: 'application/json',
-      responseSchema: POLICY_STRUCTURING_SCHEMA as Parameters<typeof ai.models.generateContent>[0]['config'] extends object ? unknown : never,
-      temperature: 0,
-    },
-  });
+        config: {
+          systemInstruction: POLICY_STRUCTURING_PROMPT,
+          responseMimeType: 'application/json',
+          responseSchema: POLICY_STRUCTURING_SCHEMA as Parameters<typeof ai.models.generateContent>[0]['config'] extends object ? unknown : never,
+          temperature: 0,
+        },
+      });
 
-  const text = response.text;
+      if (res && res.text) {
+        response = res;
+        break;
+      }
+    } catch (err) {
+      console.warn(`Gemini policy structuring failed with model ${model}:`, err instanceof Error ? err.message : err);
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
+  }
+
+  const text = response?.text;
   if (!text) {
-    throw new Error('Empty response received from Gemini API');
+    console.warn('Falling back to local policy parser due to Gemini API error:', lastError?.message);
+    return parsePolicyFallback(documentText);
   }
 
   try {

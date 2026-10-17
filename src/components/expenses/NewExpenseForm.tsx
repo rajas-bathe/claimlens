@@ -59,6 +59,21 @@ function StatusMsg({ icon, color, message, action }: { icon: React.ReactNode; co
   );
 }
 
+function formatErrorMessage(msg: string): string {
+  try {
+    const parsed = JSON.parse(msg);
+    if (parsed.error?.message) {
+      if (parsed.error?.code === 503 || parsed.error?.status === 'UNAVAILABLE') {
+        return 'The AI extraction model is temporarily experiencing high demand. Please click Retry.';
+      }
+      return parsed.error.message;
+    }
+  } catch {
+    // not JSON
+  }
+  return msg;
+}
+
 export function NewExpenseForm({ session }: { session: UserSession }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -129,7 +144,10 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
         if (ext.suggested_category) setCategory(ext.suggested_category);
       }
       setStage('ready');
-    } catch (err) { setStage('error'); setErrorMsg(err instanceof Error ? err.message : 'An error occurred'); }
+    } catch (err) {
+      setStage('error');
+      setErrorMsg(formatErrorMessage(err instanceof Error ? err.message : 'An error occurred'));
+    }
   }
 
   async function handleSave(e: React.FormEvent, asDraft = false) {

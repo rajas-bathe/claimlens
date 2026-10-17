@@ -193,6 +193,15 @@ const EXTRACTION_RESPONSE_SCHEMA = {
   ],
 };
 
+const CANDIDATE_MODELS = [
+  process.env.GEMINI_MODEL,
+  'gemini-3-flash-preview',
+  'gemini-3.5-flash',
+  'gemini-3.8-flash',
+].filter(Boolean) as string[];
+
+const UNIQUE_MODELS = Array.from(new Set(CANDIDATE_MODELS));
+
 /**
  * Extract structured data from a receipt file buffer.
  * Returns the structured ExtractionResult or throws on API failure.
@@ -207,36 +216,50 @@ export async function extractReceipt(
   }
 
   const ai = new GoogleGenAI({ apiKey });
+  let response: { text?: string | null } | null = null;
+  let lastError: Error | null = null;
 
-  const response = await ai.models.generateContent({
-    model: GEMINI_MODEL,
-    contents: [
-      {
-        role: 'user',
-        parts: [
+  for (const model of UNIQUE_MODELS) {
+    try {
+      const res = await ai.models.generateContent({
+        model,
+        contents: [
           {
-            inlineData: {
-              mimeType: mimeType,
-              data: fileBuffer.toString('base64'),
-            },
-          },
-          {
-            text: 'Extract all receipt evidence following the schema precisely. Preserve printed vs handwritten figures separately.',
+            role: 'user',
+            parts: [
+              {
+                inlineData: {
+                  mimeType: mimeType,
+                  data: fileBuffer.toString('base64'),
+                },
+              },
+              {
+                text: 'Extract all receipt evidence following the schema precisely. Preserve printed vs handwritten figures separately.',
+              },
+            ],
           },
         ],
-      },
-    ],
-    config: {
-      systemInstruction: EXTRACTION_SYSTEM_PROMPT,
-      responseMimeType: 'application/json',
-      responseSchema: EXTRACTION_RESPONSE_SCHEMA as Parameters<typeof ai.models.generateContent>[0]['config'] extends object ? unknown : never,
-      temperature: 0,
-    },
-  });
+        config: {
+          systemInstruction: EXTRACTION_SYSTEM_PROMPT,
+          responseMimeType: 'application/json',
+          responseSchema: EXTRACTION_RESPONSE_SCHEMA as Parameters<typeof ai.models.generateContent>[0]['config'] extends object ? unknown : never,
+          temperature: 0,
+        },
+      });
 
-  const text = response.text;
+      if (res && res.text) {
+        response = res;
+        break;
+      }
+    } catch (err) {
+      console.warn(`Gemini extraction attempt failed with model ${model}:`, err instanceof Error ? err.message : err);
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
+  }
+
+  const text = response?.text;
   if (!text) {
-    throw new Error('Empty response from Gemini API');
+    throw new Error(`Gemini extraction failed across all candidate models: ${lastError?.message ?? 'Empty response'}`);
   }
 
   // Parse and validate
