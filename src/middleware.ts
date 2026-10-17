@@ -4,10 +4,29 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const { pathname } = request.nextUrl;
+
+  // Public routes that don't require auth
+  const publicPaths = ['/', '/login', '/auth/callback'];
+  const isPublic = publicPaths.some(
+    (p) => pathname === p || pathname.startsWith('/auth/')
+  );
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // If Supabase env vars are not yet configured, allow public pages to render cleanly
+  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your-project')) {
+    if (!isPublic) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      return NextResponse.redirect(url);
+    }
+    return response;
+  }
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -22,36 +41,32 @@ export async function middleware(request: NextRequest) {
           );
         },
       },
+    });
+
+    // Refresh session – required to keep auth alive
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user && !isPublic) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('next', pathname);
+      return NextResponse.redirect(url);
     }
-  );
 
-  // Refresh session – required to keep auth alive
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
-
-  // Public routes that don't require auth
-  const publicPaths = ['/', '/login', '/auth/callback'];
-  const isPublic = publicPaths.some(
-    (p) => pathname === p || pathname.startsWith('/auth/')
-  );
-
-  if (!user && !isPublic) {
-    // Redirect unauthenticated users to login
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('next', pathname);
-    return NextResponse.redirect(url);
-  }
-
-  if (user && (pathname === '/login' || pathname === '/')) {
-    // Redirect authenticated users away from login/landing
-    // Role-based routing happens in the dashboard layout
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
+    if (user && (pathname === '/login' || pathname === '/')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
+  } catch (err) {
+    // If Supabase auth call fails (e.g. invalid credentials or network error)
+    if (!isPublic) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;
