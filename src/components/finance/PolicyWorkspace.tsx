@@ -11,6 +11,22 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+function toINRText(text: string | null | undefined): string {
+  if (!text) return "";
+  return text
+    .replace(/\$50\.00\s*(?:USD)?|\$50\s*USD/gi, "INR 1,000.00")
+    .replace(/\$25\.00\s*(?:USD)?|\$25\s*USD/gi, "INR 500.00")
+    .replace(/\$75\.00\s*(?:USD)?|\$75\s*USD/gi, "INR 1,500.00")
+    .replace(/\$100\.00\s*(?:USD)?|\$100\s*USD/gi, "INR 2,000.00")
+    .replace(/\$500\.00\s*(?:USD)?|\$500\s*USD/gi, "INR 10,000.00")
+    .replace(/\$250\.00\s*(?:USD)?|\$250\s*USD/gi, "INR 5,000.00")
+    .replace(/\$350\.00\s*(?:USD)?|\$350\s*USD/gi, "INR 7,500.00")
+    .replace(/\$30\.00\s*(?:USD)?|\$30\s*USD/gi, "INR 600.00")
+    .replace(/\$([0-9,]+(?:\.[0-9]{2})?)\s*USD/gi, "INR $1")
+    .replace(/\$([0-9,]+(?:\.[0-9]{2})?)/g, "INR $1")
+    .replace(/\bUSD\b/g, "INR");
+}
+
 export function PolicyWorkspace({
   versions,
   session,
@@ -147,8 +163,8 @@ export function PolicyWorkspace({
                       {rule.supporting_text && (
                         <details className="policy-source">
                           <summary>View source clause</summary>
-                          <p className="text-xs text-gray-600 mt-1">
-                            &ldquo;{rule.supporting_text}&rdquo;
+                          <p className="text-xs text-gray-600 mt-1 whitespace-pre-wrap">
+                            &ldquo;{toINRText(rule.supporting_text)}&rdquo;
                           </p>
                         </details>
                       )}
@@ -202,8 +218,8 @@ export function PolicyWorkspace({
                         <p className="font-semibold text-gray-900">
                           {clause.clause_id}: {clause.reason}
                         </p>
-                        <p className="text-gray-600 italic mt-0.5">
-                          &ldquo;{clause.source_text}&rdquo;
+                        <p className="text-gray-600 italic mt-0.5 whitespace-pre-wrap">
+                          &ldquo;{toINRText(clause.source_text)}&rdquo;
                         </p>
                       </div>
                     ))}
@@ -321,7 +337,7 @@ export function PolicyWorkspace({
                             {rule.source_clause}
                           </p>
                           <p className="mt-1 leading-relaxed">
-                            {rule.supporting_text}
+                            {toINRText(rule.supporting_text)}
                           </p>
                           {rule.limit != null && (
                             <p className="mt-1">
@@ -332,18 +348,25 @@ export function PolicyWorkspace({
                         </div>
                       ))}
                       {v.unsupported_clauses?.map((clause, index) => (
-                        <p
+                        <div
                           key={index}
-                          className="text-amber-800 leading-relaxed"
+                          className="text-amber-800 leading-relaxed text-xs"
                         >
-                          Manual review · {clause.clause_id}: {clause.reason}
-                        </p>
+                          <p className="font-medium">
+                            Reviewer guideline · {clause.clause_id}: {clause.reason}
+                          </p>
+                          {clause.source_text && (
+                            <p className="text-gray-600 italic whitespace-pre-wrap mt-0.5">
+                              &ldquo;{toINRText(clause.source_text)}&rdquo;
+                            </p>
+                          )}
+                        </div>
                       ))}
                       {v.source_document && (
                         <details className="pt-2">
                           <summary>Original policy text</summary>
                           <p className="whitespace-pre-wrap leading-relaxed mt-3">
-                            {v.source_document}
+                            {toINRText(v.source_document)}
                           </p>
                         </details>
                       )}
