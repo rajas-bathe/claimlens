@@ -1,11 +1,12 @@
 import { createServerComponentClient } from './server';
 import type { UserSession } from '@/types';
+import { cache } from 'react';
 
 /**
  * Get the current authenticated user session with membership and company data.
  * Returns null if not authenticated or membership is missing.
  */
-export async function getSession(): Promise<UserSession | null> {
+export const getSession = cache(async (): Promise<UserSession | null> => {
   try {
     const supabase = await createServerComponentClient();
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -48,7 +49,7 @@ export async function getSession(): Promise<UserSession | null> {
   } catch {
     return null;
   }
-}
+});
 
 /**
  * Get session and throw if not authenticated.

@@ -1,6 +1,8 @@
 # ClaimLens: review remediation and hackathon readiness
 Updated October 18, 2026. This report supersedes the earlier UI-only assessment.
 
+**Latest presentation/report update:** The earlier paper/evergreen presentation description below is superseded by the graphite/ivory/orange theme and simplified dashboards. Date/status-filtered reports, CSV downloads, print/PDF styling and immediate navigation feedback are implemented. The authenticated employee report and CSV download were verified in the browser; finance-role live checks and the OS PDF-save dialog remain unverified. See DESIGN_AND_REPORTS.md and the latest PROJECT_STATUS.md section for current evidence.
+
 ## What changed
 The six reported failures were reproduced locally before correction. The corrected evaluator is version 3.0.0. Individual submission, correction, reevaluation and individual/bulk finance decisions now share the production review service and guarded database functions.
 

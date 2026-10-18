@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import type { UserSession, TripContext } from "@/types";
 import { cn, validateFileType, validateFileSize, hashFile } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { CaptureGuidance } from "@/components/receipts/ReceiptEvidence";
+import { assessPixels } from "@/lib/receipts/quality";
+import type { CaptureQuality } from "@/types";
 import {
   Upload,
   FileImage,
@@ -141,6 +144,9 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
   >("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [expenseId, setExpenseId] = useState<string | null>(null);
+  const [uploadedId, setUploadedId] = useState<string | null>(null);
+  const [quality, setQuality] = useState<CaptureQuality | null>(null);
+  const qualityRequest = useRef(0);
   const needsClient = category === "Client entertainment";
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -156,6 +162,50 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
       return;
     }
     setFile(f);
+    setExpenseId(null);
+    setUploadedId(null);
+    setStage("idle");
+    setMerchant("");
+    setExpenseDate("");
+    setAmount("");
+    setCurrency("");
+    setCurrencyInferred(false);
+    setCurrencyVerified(false);
+    setQuality(null);
+    setCategory("");
+    setCity("");
+    setBusinessPurpose("");
+    setClientName("");
+    setAttendeeCount("");
+    const captureRequest = ++qualityRequest.current;
+    if (f.type !== "application/pdf")
+      void createImageBitmap(f)
+        .then((image) => {
+          const ratio = Math.min(1, 900 / image.width, 1200 / image.height),
+            canvas = document.createElement("canvas");
+          canvas.width = Math.round(image.width * ratio);
+          canvas.height = Math.round(image.height * ratio);
+          const context = canvas.getContext("2d");
+          context?.drawImage(image, 0, 0, canvas.width, canvas.height);
+          image.close();
+          if (context && captureRequest === qualityRequest.current)
+            setQuality(
+              assessPixels(
+                context.getImageData(0, 0, canvas.width, canvas.height).data,
+                canvas.width,
+                canvas.height,
+              ),
+            );
+        })
+        .catch(() => {
+          if (captureRequest === qualityRequest.current)
+            setQuality({
+              status: "unavailable",
+              checked_at: new Date().toISOString(),
+              issues: [],
+              note: "Preview quality could not be assessed. Inspect the original manually or choose JPEG/PNG.",
+            });
+        });
     if (f.type !== "application/pdf") {
       setPreviewUrl(URL.createObjectURL(f));
     } else {
@@ -182,32 +232,37 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
     setErrorMsg(null);
     setStage("uploading");
     try {
-      const fileHash = await hashFile(file);
-      const createRes = await fetch("/api/expenses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          file_hash: fileHash,
-          file_name: file.name,
-          file_size: file.size,
-          mime_type: file.type,
-        }),
-      });
-      const createData = await createRes.json();
-      if (!createRes.ok || !createData.data?.expense_id)
-        throw new Error(createData.error ?? "Failed to create expense");
-      const newExpenseId = createData.data.expense_id;
-      setExpenseId(newExpenseId);
-      const supabase = createClient();
-      const { error: uploadError } = await supabase.storage
-        .from("receipts")
-        .uploadToSignedUrl(
-          createData.data.upload_path,
-          createData.data.upload_token,
-          file,
-          { contentType: file.type },
-        );
-      if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
+      let newExpenseId = uploadedId;
+      if (!newExpenseId) {
+        const fileHash = await hashFile(file);
+        const createRes = await fetch("/api/expenses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file_hash: fileHash,
+            file_name: file.name,
+            file_size: file.size,
+            mime_type: file.type,
+          }),
+        });
+        const createData = await createRes.json();
+        if (!createRes.ok || !createData.data?.expense_id)
+          throw new Error(createData.error ?? "Failed to create expense");
+        newExpenseId = createData.data.expense_id;
+        setExpenseId(newExpenseId);
+        const supabase = createClient();
+        const { error: uploadError } = await supabase.storage
+          .from("receipts")
+          .uploadToSignedUrl(
+            createData.data.upload_path,
+            createData.data.upload_token,
+            file,
+            { contentType: file.type },
+          );
+        if (uploadError)
+          throw new Error(`Upload failed: ${uploadError.message}`);
+        setUploadedId(newExpenseId);
+      }
       setStage("extracting");
       const extractRes = await fetch(`/api/expenses/${newExpenseId}/extract`, {
         method: "POST",
@@ -216,11 +271,13 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
       if (!extractRes.ok)
         throw new Error(extractData.error ?? "Extraction failed");
       const ext = extractData.data?.extraction;
+      if (extractData.data?.capture_quality)
+        setQuality(extractData.data.capture_quality);
       if (ext) {
         setCurrencyInferred(
           Boolean(
             ext.currency_is_inferred ||
-              ext.normalized_currency?.source === "derived",
+            ext.normalized_currency?.source === "derived",
           ),
         );
         setCurrencyVerified(false);
@@ -283,6 +340,12 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
 
   return (
     <div className="space-y-6">
+      <p className="workflow-hint">
+        Reimbursement currency: INR (₹). Keep the receipt’s original currency.
+        Foreign receipts require a dated conversion with its source after you
+        save the claim.
+      </p>
+      <CaptureGuidance quality={quality} />
       <div className="upload-steps" aria-label="Expense submission progress">
         {["Capture receipt", "Review details", "Submit for review"].map(
           (label, index) => (
@@ -538,7 +601,7 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
                     onChange={(e) => setCurrency(e.target.value.toUpperCase())}
                     className={cn(inputCls, "w-20 uppercase font-mono")}
                     maxLength={3}
-                    placeholder="USD"
+                    placeholder="INR"
                   />
                 </div>
               </Field>

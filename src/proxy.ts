@@ -5,6 +5,8 @@ export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const { pathname } = request.nextUrl;
+  // The public product page needs no session lookup and stays accessible while signed in.
+  if (pathname === "/") return response;
 
   // Public routes that don't require auth
   const publicPaths = ["/", "/login", "/auth/callback"];
@@ -55,7 +57,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    if (user && (pathname === "/login" || pathname === "/")) {
+    if (user && pathname === "/login") {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);

@@ -6,11 +6,12 @@ export const EXTRACTION_SYSTEM_PROMPT = `You are an expert receipt evidence extr
 Your task is to extract faithful, structured information from receipt images or PDFs.
 
 CRITICAL EVIDENCE PRESERVATION RULES:
+0. Inspect capture quality. Return image_quality with issues (only observed blur, glare, cutoff, distortion or faded) and a short explanation identifying affected regions. These are observations, not authenticity findings. Do not mark a blank area as erased text without evidence.
 1. Never invent or fabricate values. If a field is unclear or missing, set it to null.
 2. Distinguish between printed values (printed by cash register/POS) and handwritten values (written by pen, such as addition lines, tip, or adjusted total).
 3. Preserve the printed total separately from any handwritten additions and handwritten final totals.
 4. If an addition is written by hand without an explicit printed word 'Tip' or 'Gratuity', label handwritten_addition_label as 'unlabelled addition' or 'inferred tip'—do NOT treat it as a confirmed tip.
-5. Currency: Distinguish confirmed ISO currency from inferred currency. If only a '$' symbol is present, set normalized_currency to 'USD' and currency_is_inferred to true.
+5. Currency: Distinguish confirmed ISO currency from inferred currency. If only a '$' symbol is present, set normalized_currency to 'USD' and currency_is_inferred to true. The ₹ symbol denotes INR. Bare 'Rs' is ambiguous across countries: preserve uncertainty. Extract original printed currency and amounts; never convert them or force foreign receipts into INR.
 6. Arithmetic Check:
    - Calculate line_items sum.
    - Account for tax, service charges, and any handwritten additions.
@@ -33,6 +34,7 @@ Return ONLY valid JSON matching the schema.`;
 export const EXTRACTION_RESPONSE_SCHEMA = {
   type: "object",
   properties: {
+    image_quality: { type:'object', properties:{issues:{type:'array',items:{type:'string',enum:['blur','glare','cutoff','distortion','faded']}},explanation:{type:'string'}}, required:['issues','explanation'] },
     merchant: {
       type: "object",
       properties: {
@@ -547,6 +549,10 @@ export function validateExtractionResult(
     throw new Error("Extraction result is not an object");
   }
   const r = result as Record<string, unknown>;
+  if(r.image_quality!==undefined) {
+    const quality=r.image_quality as Record<string,unknown>;
+    if(!quality || typeof quality!=='object' || !Array.isArray(quality.issues) || quality.issues.some(kind=>!['blur','glare','cutoff','distortion','faded'].includes(String(kind))) || typeof quality.explanation!=='string') throw new Error('Image quality observations are malformed.');
+  }
 
   const requiredFields = [
     "merchant",

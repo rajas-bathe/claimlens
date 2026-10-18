@@ -3,21 +3,14 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Expense, Evaluation } from "@/types";
 import { ArrowRightLeft, Loader2 } from "lucide-react";
+import { inrValue } from "@/lib/currency";
 export function ConversionResolution({
   expense,
-  evaluation,
 }: {
   expense: Expense;
   evaluation: Evaluation | null;
 }) {
-  const targets = [
-    ...new Set(
-      (evaluation?.rule_results ?? [])
-        .filter((r) => r.outcome === "unknown" && r.details.comparison_currency)
-        .map((r) => String(r.details.comparison_currency)),
-    ),
-  ];
-  const [target, setTarget] = useState(targets[0] ?? "");
+  const target = "INR";
   const [rate, setRate] = useState("");
   const [date, setDate] = useState(expense.expense_date ?? "");
   const [source, setSource] = useState("");
@@ -25,7 +18,13 @@ export function ConversionResolution({
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
   const router = useRouter();
-  if (!targets.length) return null;
+  if (
+    ["approved", "rejected"].includes(expense.review_status) ||
+    !expense.original_currency ||
+    expense.original_currency === "INR" ||
+    inrValue(expense) !== null
+  )
+    return null;
   function save(e: React.FormEvent) {
     e.preventDefault();
     start(async () => {
@@ -65,13 +64,13 @@ export function ConversionResolution({
       <form onSubmit={save}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label>
-            Compare in
+            Reimburse in
             <select
               aria-label="Conversion target currency"
               value={target}
-              onChange={(e) => setTarget(e.target.value)}
+              disabled
             >
-              {targets.map((code) => (
+              {["INR"].map((code) => (
                 <option key={code}>{code}</option>
               ))}
             </select>

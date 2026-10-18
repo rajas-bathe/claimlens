@@ -87,6 +87,9 @@ export interface PolicyVersion {
 }
 
 export interface Expense {
+  first_submitted_at?: string | null;
+  capture_quality?: CaptureQuality | null;
+  ocr_evidence?: OcrEvidence | null;
   id: string;
   company_id: string;
   employee_id: string;
@@ -165,6 +168,25 @@ export interface BatchImport {
 }
 
 // ─── Extraction ───────────────────────────────────────────────────────────────
+export interface CaptureQuality {
+  checked_at: string;
+  status: 'checked' | 'unavailable';
+  width?: number;
+  height?: number;
+  metrics?: { sharpness: number; contrast: number; clipped_white_fraction: number };
+  issues: Array<{ kind: string; source: 'pixel_heuristic' | 'vision_model' | 'ocr_geometry'; message: string }>;
+  note: string;
+}
+export interface OcrWord { text: string; confidence: number; box: [number, number, number, number] }
+export interface OcrEvidence {
+  quality_issues?: CaptureQuality['issues'];
+  checked_at: string;
+  engine: 'tesseract-eng';
+  text: string;
+  confidence: number;
+  words: OcrWord[];
+  note: string;
+}
 
 export interface AmountBreakdown {
   items_subtotal: number | null;
@@ -177,6 +199,7 @@ export interface AmountBreakdown {
 }
 
 export interface ExtractionResult {
+  image_quality?: { issues: Array<'blur' | 'glare' | 'cutoff' | 'distortion' | 'faded'>; explanation: string };
   merchant: ExtractionField<string>;
   invoice_number: ExtractionField<string>;
   printed_date: ExtractionField<string>;
@@ -271,6 +294,8 @@ export interface ConfirmedFields {
 // ─── Policy ───────────────────────────────────────────────────────────────────
 
 export type RuleType =
+  | 'minimum_amount'
+  | 'submission_deadline'
   | 'required_field'
   | 'per_expense_cap'
   | 'daily_cap'
@@ -284,6 +309,8 @@ export type RuleType =
   | 'currency_restriction';
 
 export interface PolicyRule {
+  deadline_days?: number;
+  deadline_basis?: 'calendar_days';
   /** Explicit policy terms; absent values never imply a per-person multiplier. */
   limit_basis?: 'per_claim' | 'per_attendee';
   spending_scope?: 'employee' | 'company';

@@ -55,6 +55,11 @@ export function PolicyWorkspace({
 
   return (
     <div className="space-y-6">
+      <p className="workflow-hint">
+        Workspace currency: INR (₹). Reports and reimbursements use verified INR
+        values. Original policy quotations retain their source currency; use the
+        INR sample when preparing new limits.
+      </p>
       {/* Active policy card */}
       {activeVersion ? (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -90,7 +95,22 @@ export function PolicyWorkspace({
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <span className="font-medium text-gray-900 text-sm">
-                            {rule.type.replace(/_/g, " ")}
+                            {{
+                              minimum_amount: "Minimum claim amount",
+                              submission_deadline: "Submission deadline",
+                              daily_cap: "Daily allowance",
+                              category_cap: "Category allowance",
+                              city_cap: "City allowance",
+                              per_expense_cap: "Per-claim allowance",
+                              prohibited_item: "Restricted purchases",
+                              approval_threshold: "Approval threshold",
+                              required_field: "Required details",
+                              itemization_requirement: "Itemized receipt",
+                              currency_restriction: "Allowed currencies",
+                              client_entertainment_requirement:
+                                "Client meal details",
+                              trip_context_override: "Travel context",
+                            }[rule.type] ?? rule.type.replace(/_/g, " ")}
                           </span>
                           {rule.source_clause && (
                             <span className="text-xs text-gray-500 ml-2 font-mono">
@@ -114,19 +134,38 @@ export function PolicyWorkspace({
                             },
                           )}
                         >
-                          {rule.outcome.replace(/_/g, " ")}
+                          {
+                            {
+                              block: "Policy limit",
+                              flag: "Review required",
+                              require_approval: "Approval required",
+                              require_field: "Details required",
+                              info_only: "Information",
+                            }[rule.outcome]
+                          }
                         </span>
                       </div>
                       {rule.supporting_text && (
-                        <p className="text-xs text-gray-600 mt-1 italic">
-                          &ldquo;{rule.supporting_text}&rdquo;
-                        </p>
+                        <details className="policy-source">
+                          <summary>View source clause</summary>
+                          <p className="text-xs text-gray-600 mt-1">
+                            &ldquo;{rule.supporting_text}&rdquo;
+                          </p>
+                        </details>
                       )}
                       <div className="mt-2 text-xs text-gray-500 flex flex-wrap gap-2">
+                        {rule.type === "submission_deadline" && (
+                          <span className="bg-white border px-1.5 py-0.5 rounded">
+                            Within {rule.deadline_days ?? "unspecified"}{" "}
+                            calendar days · first submission · UTC
+                          </span>
+                        )}
                         {rule.limit !== null && rule.limit !== undefined && (
                           <span className="bg-white border px-1.5 py-0.5 rounded">
-                            Limit: {rule.limit} {rule.limit_currency ?? "USD"} (
-                            {rule.aggregation_scope ?? "per expense"})
+                            Limit: {rule.limit}{" "}
+                            {rule.limit_currency ?? "Currency unspecified"} ·{" "}
+                            {rule.aggregation_scope?.replace(/_/g, " ") ??
+                              "per expense"}
                           </span>
                         )}
                         {rule.categories && rule.categories.length > 0 && (
@@ -164,7 +203,7 @@ export function PolicyWorkspace({
                     {activeVersion.unsupported_clauses.map((clause, idx) => (
                       <div
                         key={idx}
-                        className="bg-white/80 p-2.5 rounded border border-amber-200 text-xs"
+                        className="policy-clause-evidence p-2.5 rounded border text-xs"
                       >
                         <p className="font-semibold text-gray-900">
                           {clause.clause_id}: {clause.reason}
@@ -460,27 +499,27 @@ const SAMPLE_POLICY_TEXT = `COMPANY EXPENSE POLICY - CLAUSE BREAKDOWN
 
 1. GENERAL COMPLIANCE & RECEIPT INTEGRITY
 1.1 Every submitted expense must include a readable original receipt, date, merchant, and total.
-1.2 Itemized receipts are mandatory for all hotel accommodations and any meal claim over $50 USD.
+1.2 Itemized receipts are mandatory for all hotel accommodations and any meal claim over INR 1,000.
 1.3 Discrepancies between printed totals and line item sums must be explained prior to reimbursement.
 
 2. MEALS & SUBSISTENCE LIMITS
-2.1 Routine office meals are capped at $25.00 USD per person per day.
-2.2 Business trip meals (outside home city) are capped at $75.00 USD per person per day.
-2.3 Tier 1 High-Cost Cities (New York, San Francisco, London, Zurich, Tokyo): Business trip meal cap is elevated to $100.00 USD per person per day.
+2.1 Routine office meals are capped at INR 500.00 per person per day.
+2.2 Business trip meals (outside home city) are capped at INR 1,500.00 per person per day.
+2.3 Tier 1 High-Cost Cities (Mumbai, Delhi, Bengaluru): Business trip meal cap is elevated to INR 2,000.00 per person per day.
 2.4 Combined daily meal claims across multiple receipts cannot exceed the applicable daily cap.
 
 3. CLIENT ENTERTAINMENT
 3.1 Client entertainment requires recording the verified Client Name and Total Number of Attendees.
-3.2 Client meals are capped at $100.00 USD per attendee.
-3.3 Any single client entertainment expense exceeding $500.00 USD triggers an Executive Approval threshold.
+3.2 Client meals are capped at INR 2,000.00 per attendee.
+3.3 Any single client entertainment expense exceeding INR 10,000.00 triggers an Executive Approval threshold.
 
 4. TRAVEL & LODGING
-4.1 Hotel lodging is capped at $250.00 USD per night standard, or $350.00 USD per night in Tier 1 high-cost cities.
+4.1 Hotel lodging is capped at INR 5,000.00 per night standard, or INR 7,500.00 per night in Tier 1 high-cost cities.
 4.2 Business class airfare is prohibited on domestic flights under 6 hours.
 
 5. PROHIBITED EXPENSES
 5.1 Personal items, tobacco, gambling, minibar consumables, and personal entertainment are non-reimbursable.
-5.2 Alcohol is only reimbursable during verified client entertainment meals, up to $30.00 USD per attendee.
+5.2 Alcohol is only reimbursable during verified client entertainment meals, up to INR 600.00 per attendee.
 
 6. CURRENCY CONVERSION
-6.1 Non-USD claims must be supported by verifiable currency codes. Unsupported or ambiguous currency symbols prevent automatic processing.`;
+6.1 Reimbursement and reporting use INR only. Foreign receipts retain their original currency and require a positive dated exchange rate from a verifiable bank, card or company source before reimbursement. Unsupported or ambiguous currency symbols prevent automatic processing.`;

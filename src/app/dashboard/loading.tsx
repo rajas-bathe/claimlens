@@ -1,7 +1,8 @@
+import { Loader2 } from "lucide-react";
 export default function WorkspaceLoading() {
   return (
     <div role="status" aria-label="Loading workspace" className="space-y-6">
-      <p className="page-kicker">GETTING THE PICTURE</p>
+      <p className="page-kicker flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> LOADING YOUR WORKSPACE</p>
       <h1>Loading your workspace…</h1>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" aria-hidden="true">
         {[1, 2, 3, 4].map((n) => (

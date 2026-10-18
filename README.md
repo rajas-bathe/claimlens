@@ -6,6 +6,8 @@ ClaimLens is an intelligent expense review and compliance platform designed for 
 
 ## 🚀 Key Features
 
+- **Dashboard Reports:** Generate a date/status-filtered report, preview currency-separated totals, download CSV, or use the dedicated Print / PDF layout. Employees see their own claims; finance sees company claims. See [report behavior and verification](DESIGN_AND_REPORTS.md).
+
 - **Document Capture & Extraction:** Upload image (JPEG, PNG, WebP) or PDF receipts. Receipt preview with rotation, zoom, and direct upload to private Supabase Storage.
 - **AI Extraction Pipeline:** Gemini structured extraction with strict schema validation. Reads printed merchant, dates, currency, line items, taxes, and detects arithmetic discrepancies between line items and totals without inventing missing data.
 - **Deterministic Policy Engine:** Pure, independently testable TypeScript functions with exact decimal math (`decimal.js`). Evaluates daily caps, category caps, city tier overrides (e.g. NYC/London/Tokyo), client entertainment requirements, prohibited items, itemization completeness, and approval thresholds.

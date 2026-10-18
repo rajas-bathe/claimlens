@@ -22,7 +22,7 @@ const claim = (overrides: Partial<Expense> = {}) =>
     id: "claim-1",
     created_at: "2026-10-17T12:00:00Z",
     original_amount: 48,
-    original_currency: "USD",
+    original_currency: "INR",
     review_status: "submitted",
     ...overrides,
   }) as Expense;
@@ -42,7 +42,7 @@ test("Single-date dataset plots a visible full-height bar with an accessible cou
   assert.match(html, /Counts include drafts/);
 });
 
-test("Mixed-currency approved claims render separate totals and do not imply payment", () => {
+test("INR overview excludes unconverted foreign approvals and does not imply payment", () => {
   const html = render([
     claim({ review_status: "approved" }),
     claim({
@@ -53,7 +53,7 @@ test("Mixed-currency approved claims render separate totals and do not imply pay
     }),
   ]);
   assert.match(html, /48\.00/);
-  assert.match(html, /20\.00/);
+  assert.match(html, /unresolved/);
   assert.doesNotMatch(html, /68\.00/);
   assert.match(html, /Payment is not tracked here/);
 });

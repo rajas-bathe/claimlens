@@ -1,6 +1,12 @@
 import { currencyConfirmed } from "@/lib/evidence";
 export { currencyConfirmed } from "@/lib/evidence";
 import Decimal from "decimal.js";
+export { EVALUATOR_VERSION } from "./version";
+import {
+  evidenceReviewValid,
+  uncertainEvidence,
+} from "@/lib/receipts/verification";
+import { detectPatterns } from "@/lib/receipts/patterns";
 import type {
   Expense,
   PolicyRule,
@@ -11,7 +17,6 @@ import type {
   PolicyCondition,
 } from "@/types";
 
-export const EVALUATOR_VERSION = "3.0.0";
 export interface EvaluationInput {
   expense: Expense;
   activePolicyRules: PolicyRule[];
@@ -39,6 +44,8 @@ const ACTIVE = new Set([
   "approved",
 ]);
 const TYPES = new Set([
+  "minimum_amount",
+  "submission_deadline",
   "required_field",
   "per_expense_cap",
   "daily_cap",
@@ -189,6 +196,7 @@ export function ruleSupportIssue(rule: PolicyRule): string | null {
     return "This spending scope needs manual interpretation.";
   if (
     [
+      "minimum_amount",
       "per_expense_cap",
       "daily_cap",
       "category_cap",
@@ -200,6 +208,27 @@ export function ruleSupportIssue(rule: PolicyRule): string | null {
       !/^[A-Z]{3}$/.test(rule.limit_currency ?? ""))
   )
     return "The financial limit or its ISO currency is missing.";
+  if (
+    rule.type === "submission_deadline" &&
+    (!Number.isInteger(rule.deadline_days) ||
+      rule.deadline_days! < 0 ||
+      rule.deadline_days! > 3660 ||
+      rule.deadline_basis !== "calendar_days")
+  )
+    return "A submission deadline needs an explicit non-negative calendar-day count. Business-day and month-end deadlines remain manual review.";
+  if (
+    rule.type === "minimum_amount" &&
+    ((rule.aggregation_scope && rule.aggregation_scope !== "per_expense") ||
+      rule.limit_basis === "per_attendee")
+  )
+    return "Minimum amounts are supported per claim only.";
+  if (
+    rule.type === "submission_deadline" &&
+    /business\s*days|working\s*days|month[ -]?end|end of (?:the )?(?:month|trip)|local time|time\s*zone/i.test(
+      rule.supporting_text ?? "",
+    )
+  )
+    return "The source deadline uses a calendar convention not supported automatically. Finance must interpret the quoted clause.";
   if (
     !Array.isArray(rule.conditions ?? []) ||
     !Array.isArray(rule.exceptions ?? [])
@@ -473,11 +502,13 @@ function evaluateRule(
         details,
         "Provide an itemized receipt or obtain a documented finance exception",
       );
-    const matchedItems = ext.line_items.map((item, source_index) => ({ ...item, source_index })).filter((item) =>
-      (rule.prohibited_values ?? []).some((term) =>
-        item.description?.toLowerCase().includes(term.toLowerCase()),
-      ),
-    );
+    const matchedItems = ext.line_items
+      .map((item, source_index) => ({ ...item, source_index }))
+      .filter((item) =>
+        (rule.prohibited_values ?? []).some((term) =>
+          item.description?.toLowerCase().includes(term.toLowerCase()),
+        ),
+      );
     if (matchedItems.some((item) => !finite(item.amount)))
       return finding(
         rule,
@@ -513,6 +544,52 @@ function evaluateRule(
       null,
     );
   }
+  if (rule.type === "submission_deadline") {
+    const submitted = expense.first_submitted_at;
+    if (
+      !expense.expense_date ||
+      !submitted ||
+      Number.isNaN(Date.parse(submitted))
+    )
+      return finding(
+        rule,
+        "unknown",
+        "The expense date or recorded first submission time is unavailable.",
+        details,
+        "Supply a valid expense date; finance must review legacy claims without submission history",
+      );
+    const date = Date.parse(expense.expense_date + "T00:00:00Z");
+    const submittedDay = Date.parse(
+      new Date(submitted).toISOString().slice(0, 10) + "T00:00:00Z",
+    );
+    const elapsed = (submittedDay - date) / 86400000;
+    if (!Number.isFinite(elapsed) || elapsed < 0)
+      return finding(
+        rule,
+        "unknown",
+        "The expense date is after its first submission date.",
+        details,
+        "Correct the date or request clarification",
+      );
+    const late = elapsed > rule.deadline_days!;
+    return finding(
+      rule,
+      late ? "fail" : "pass",
+      late
+        ? "Claim submitted after the policy deadline."
+        : "Claim submitted within the policy deadline.",
+      {
+        ...details,
+        first_submitted_at: submitted,
+        elapsed_calendar_days: elapsed,
+        deadline_days: rule.deadline_days,
+        basis:
+          "UTC calendar days; first submission is retained on resubmission",
+      },
+      late ? "Finance must review the late-submission exception" : "None",
+      late ? 0 : null,
+    );
+  }
   const comparisonCurrency = rule.limit_currency!;
   const current = comparableAmount(expense, comparisonCurrency);
   if (!current)
@@ -528,6 +605,26 @@ function evaluateRule(
       "Confirm currency or provide a dated conversion with its source",
     );
   let limit = new Decimal(rule.limit!);
+  if (rule.type === "minimum_amount") {
+    const below = current.lt(limit);
+    return finding(
+      rule,
+      below ? "fail" : "pass",
+      below
+        ? "Claim is below the policy minimum reimbursement amount."
+        : "Claim meets the policy minimum reimbursement amount.",
+      {
+        ...details,
+        limit: limit.toNumber(),
+        amount: current.toNumber(),
+        currency: comparisonCurrency,
+      },
+      below
+        ? "Review the source policy minimum or request a documented exception"
+        : "None",
+      below ? 0 : null,
+    );
+  }
   if (rule.limit_basis === "per_attendee") {
     if (
       !expense.attendee_count ||
@@ -704,6 +801,44 @@ function evaluateRule(
 export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
   const { expense } = input;
   const results: RuleResult[] = [];
+  const uncertain = uncertainEvidence(expense);
+  if (uncertain.length)
+    results.push(
+      finding(
+        core("critical_evidence_verification"),
+        "unknown",
+        "Critical receipt evidence must be compared with the original.",
+        { reasons: uncertain, non_overridable: !evidenceReviewValid(expense) },
+        "Review and explicitly confirm the amount, date, merchant and currency",
+      ),
+    );
+  if (uncertain.length && evidenceReviewValid(expense)) {
+    const check = results.at(-1)!;
+    check.outcome = "pass";
+    check.message =
+      "A person compared the current critical values against the current receipt evidence.";
+    check.required_action = "None";
+  }
+  const patterns = detectPatterns(
+    expense,
+    input.candidateDuplicates ?? input.spendingHistory ?? [],
+    input.activePolicyRules,
+  );
+  for (const [index, signal] of patterns.entries())
+    results.push(
+      finding(
+        core("pattern_" + signal.kind + "_" + index),
+        "unknown",
+        signal.message,
+        {
+          ...signal.details,
+          pattern_kind: signal.kind,
+          related_expense_ids: signal.expense_ids,
+          supported: true,
+        },
+        "Finance must compare these related claims and document a decision; this is not a fraud finding",
+      ),
+    );
   const currency = expense.original_currency?.trim().toUpperCase() ?? "";
   const amount =
     finite(expense.original_amount) && expense.original_amount >= 0
@@ -729,10 +864,10 @@ export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
   );
   const validDate = Boolean(
     expense.expense_date &&
-      /^\d{4}-\d{2}-\d{2}$/.test(expense.expense_date) &&
-      !Number.isNaN(Date.parse(expense.expense_date)) &&
-      new Date(expense.expense_date).toISOString().slice(0, 10) ===
-        expense.expense_date,
+    /^\d{4}-\d{2}-\d{2}$/.test(expense.expense_date) &&
+    !Number.isNaN(Date.parse(expense.expense_date)) &&
+    new Date(expense.expense_date).toISOString().slice(0, 10) ===
+      expense.expense_date,
   );
   results.push(
     finding(
@@ -869,9 +1004,13 @@ export function evaluateExpensePolicy(input: EvaluationInput): EngineResult {
     if (result.reimbursable_impact !== null && reimbursable)
       reimbursable = Decimal.min(reimbursable, result.reimbursable_impact);
     const items = result.details.prohibited_items as
-      | { description: string | null; amount: number | null; source_index: number }[]
+      | {
+          description: string | null;
+          amount: number | null;
+          source_index: number;
+        }[]
       | undefined;
-    for (const item of result.outcome === "fail" ? items ?? [] : [])
+    for (const item of result.outcome === "fail" ? (items ?? []) : [])
       if (finite(item.amount))
         prohibited.set(String(item.source_index), item.amount);
   }
@@ -935,12 +1074,12 @@ export function checkDuplicates(
       continue;
     const crossEmployee = Boolean(
       target.employee_id &&
-        candidate.employee_id &&
-        target.employee_id !== candidate.employee_id,
+      candidate.employee_id &&
+      target.employee_id !== candidate.employee_id,
     );
     const exact = Boolean(
       target.receipt_file_hash &&
-        candidate.receipt_file_hash === target.receipt_file_hash,
+      candidate.receipt_file_hash === target.receipt_file_hash,
     );
     const merchant = (s: string | null) =>
       s?.toLowerCase().replace(/[^a-z0-9]/g, "") ?? "";

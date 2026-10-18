@@ -29,7 +29,9 @@ export async function POST(
       );
     }
 
-    const isOwner = expense.employee_id === session.id && expense.company_id === session.membership.company_id;
+    const isOwner =
+      expense.employee_id === session.id &&
+      expense.company_id === session.membership.company_id;
     const isFinance =
       session.membership.role === "finance" &&
       expense.company_id === session.membership.company_id;
@@ -58,7 +60,11 @@ export async function POST(
       },
     });
   } catch (err) {
-    if (err instanceof ReviewError) return NextResponse.json({ success: false, error: err.message }, { status: err.status });
+    if (err instanceof ReviewError)
+      return NextResponse.json(
+        { success: false, error: err.message },
+        { status: err.status },
+      );
     const msg = err instanceof Error ? err.message : "Internal error";
     if (msg === "UNAUTHORIZED")
       return NextResponse.json(

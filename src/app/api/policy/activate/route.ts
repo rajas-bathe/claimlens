@@ -32,6 +32,24 @@ export async function POST(req: NextRequest) {
         },
         { status: 422 },
       );
+    if (
+      ((policy.structured_rules as PolicyRule[]) ?? []).some(
+        (r) =>
+          (r.limit_currency && r.limit_currency !== "INR") ||
+          r.exceptions?.some(
+            (e) =>
+              e.override?.limit_currency && e.override.limit_currency !== "INR",
+          ),
+      )
+    )
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "New monetary policy limits must be stated in INR. Review and prepare an INR policy; source amounts are never automatically relabelled.",
+        },
+        { status: 422 },
+      );
     const date = body.effective_from ?? new Date().toISOString().slice(0, 10);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
       return NextResponse.json(

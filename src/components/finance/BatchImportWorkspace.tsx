@@ -21,6 +21,7 @@ interface FileImportState {
   status: "pending" | "uploading" | "extracting" | "done" | "error";
   error: string | null;
   expenseId: string | null;
+  extracted?: boolean;
 }
 
 export function BatchImportWorkspace({
@@ -85,56 +86,69 @@ export function BatchImportWorkspace({
       prev.map((f, i) => (i === idx ? { ...f, status: "uploading" } : f)),
     );
     try {
-      const fileHash = await hashFile(state.file);
-      const createRes = await fetch("/api/expenses/batch-create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          file_hash: fileHash,
-          file_name: state.file.name,
-          file_size: state.file.size,
-          mime_type: state.file.type,
-          employee_id: state.employeeId,
-        }),
-      });
-      const createData = await createRes.json();
-      if (!createRes.ok)
-        throw new Error(createData.error ?? "Failed to create");
-      const expenseId = createData.data.expense_id;
+      let expenseId = state.expenseId;
+      if (!expenseId) {
+        const fileHash = await hashFile(state.file);
+        const createRes = await fetch("/api/expenses/batch-create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file_hash: fileHash,
+            file_name: state.file.name,
+            file_size: state.file.size,
+            mime_type: state.file.type,
+            employee_id: state.employeeId,
+          }),
+        });
+        const createData = await createRes.json();
+        if (!createRes.ok)
+          throw new Error(createData.error ?? "Failed to create");
+        expenseId = createData.data.expense_id;
 
-      const supabase = createClient();
-      const { error: uploadError } = await supabase.storage
-        .from("receipts")
-        .uploadToSignedUrl(
-          createData.data.upload_path,
-          createData.data.upload_token,
-          state.file,
-          {
-            contentType: state.file.type,
-          },
+        const supabase = createClient();
+        const { error: uploadError } = await supabase.storage
+          .from("receipts")
+          .uploadToSignedUrl(
+            createData.data.upload_path,
+            createData.data.upload_token,
+            state.file,
+            {
+              contentType: state.file.type,
+            },
+          );
+
+        if (uploadError)
+          throw new Error(`Upload failed: ${uploadError.message}`);
+
+        setFiles((prev) =>
+          prev.map((f, i) =>
+            i === idx ? { ...f, status: "extracting", expenseId } : f,
+          ),
         );
-
-      if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
-
-      setFiles((prev) =>
-        prev.map((f, i) =>
-          i === idx ? { ...f, status: "extracting", expenseId } : f,
-        ),
-      );
-
-      const extractRes = await fetch(`/api/expenses/${expenseId}/extract`, {
-        method: "POST",
-      });
-      if (!extractRes.ok) {
-        const d = await extractRes.json();
-        throw new Error(d.error ?? "Extraction failed");
+      }
+      if (!state.extracted) {
+        const extractRes = await fetch(`/api/expenses/${expenseId}/extract`, {
+          method: "POST",
+        });
+        if (!extractRes.ok) {
+          const d = await extractRes.json();
+          throw new Error(d.error ?? "Extraction failed");
+        }
+        setFiles((prev) =>
+          prev.map((f, i) => (i === idx ? { ...f, extracted: true } : f)),
+        );
       }
 
       // Also trigger initial policy evaluation
-      const evaluationResponse = await fetch(
-        `/api/expenses/${expenseId}/evaluate`,
-        { method: "POST" },
-      );
+      const evaluationResponse = await fetch(`/api/expenses/${expenseId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          review_status: "submitted",
+          request_id: crypto.randomUUID(),
+          note: "Finance batch import submitted on behalf of the assigned employee.",
+        }),
+      });
       if (!evaluationResponse.ok) {
         const failure = await evaluationResponse.json();
         throw new Error(
@@ -271,7 +285,9 @@ export function BatchImportWorkspace({
                     value={f.employeeId}
                     onChange={(e) => setEmployee(idx, e.target.value)}
                     className="text-sm border border-gray-300 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    disabled={running || f.status === "done"}
+                    disabled={
+                      running || f.status === "done" || Boolean(f.expenseId)
+                    }
                   >
                     {members.map((m) => (
                       <option key={m.user_id} value={m.user_id}>

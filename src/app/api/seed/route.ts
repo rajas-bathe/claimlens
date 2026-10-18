@@ -8,11 +8,14 @@ import {
   SAMPLE_RECEIPT_FIXTURES,
 } from '@/lib/fixtures/sample-data';
 import { evaluateExpensePolicy } from '@/lib/policy/engine';
+import { requireFinanceSession } from '@/lib/supabase/auth';
 
 // POST /api/seed
 // Populates the workspace with sample company, active policy, and initial fixtures
 export async function POST(req: NextRequest) {
   try {
+    await requireFinanceSession();
+    if(process.env.ENABLE_SAMPLE_SEED !== 'true') return NextResponse.json({success:false,error:'Sample initialization is disabled. Existing workspace data is preserved.'},{status:403});
     const supabase = createServiceClient();
 
     // 1. Get or create sample company
@@ -188,8 +191,8 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Internal error';
-    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+    return NextResponse.json({ success: false, error: msg }, { status: msg === 'UNAUTHORIZED' ? 401 : msg === 'FORBIDDEN' ? 403 : 500 });
   }
 }
 
-export const GET = POST;
+export async function GET() { return NextResponse.json({error:'Use the explicitly enabled finance-only POST action.'},{status:405,headers:{Allow:'POST'}}); }

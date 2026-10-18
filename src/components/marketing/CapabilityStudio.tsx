@@ -2,45 +2,41 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ScanLine,
+  Layers3,
   ShieldCheck,
-  GitBranch,
   Check,
-  FileText,
+  ArrowUpRight,
   Pause,
   Play,
-  CornerDownRight,
-  Info,
+  ReceiptText,
+  AlertCircle,
 } from "lucide-react";
 import styles from "./Marketing.module.css";
-
-const stages = [
+const steps = [
   {
     label: "Capture",
     icon: ScanLine,
-    kicker: "01 / KEEP THE ORIGINAL",
-    title: "The details, without the detective work.",
-    text: "A receipt becomes structured evidence. Printed figures, handwritten additions, and uncertain fields keep their own place in the picture.",
+    title: "The details. In focus.",
+    text: "Read receipt evidence without losing sight of the original. Unclear information stays visible, ready to resolve.",
   },
   {
     label: "Understand",
-    icon: ShieldCheck,
-    kicker: "02 / ADD THE RIGHT CONTEXT",
-    title: "Your policy. Applied in perspective.",
-    text: "The right employee, spending period and currency matter. See which receipts contribute, which rule applies, and what still needs clarification.",
+    icon: Layers3,
+    title: "Policy meets context.",
+    text: "Connect the receipt to the applicable policy and earlier claims. See what contributed to every finding.",
   },
   {
     label: "Decide",
-    icon: GitBranch,
-    kicker: "03 / MAKE A DEFENSIBLE DECISION",
-    title: "A clear next step. A lasting record.",
-    text: "Review the findings, ask for missing details, or record a permitted decision. An exception needs an explanation; a passed check still needs your approval.",
+    icon: ShieldCheck,
+    title: "A next step. With reasons.",
+    text: "Resolve uncertainty, ask for missing details or record a finance decision. Keep a clear history of what happened.",
   },
 ];
 export function CapabilityStudio() {
-  const [stage, setStage] = useState(0);
+  const [step, setStep] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [reduced, setReduced] = useState(true);
+  const [visible, setVisible] = useState(false);
   const root = useRef<HTMLElement>(null);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   useEffect(() => {
@@ -50,34 +46,28 @@ export function CapabilityStudio() {
     media.addEventListener("change", sync);
     const observer = new IntersectionObserver(
       ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.3 },
+      { threshold: 0.25 },
     );
     if (root.current) observer.observe(root.current);
     return () => {
-      media.removeEventListener("change", sync);
       observer.disconnect();
+      media.removeEventListener("change", sync);
     };
   }, []);
   useEffect(() => {
     if (paused || reduced || !visible) return;
-    const timer = setInterval(() => setStage((s) => (s + 1) % 3), 6500);
+    const timer = setInterval(() => setStep((s) => (s + 1) % 3), 6500);
     return () => clearInterval(timer);
   }, [paused, reduced, visible]);
-  const current = stages[stage];
   return (
-    <section
-      ref={root}
-      id="product"
-      className={styles.studioSection}
-      aria-label="Interactive product walkthrough"
-    >
+    <section ref={root} id="product" className={styles.studioSection}>
       <div className={styles.sectionIntro}>
         <div>
-          <p className={styles.kicker}>THE PRODUCT, IN FOCUS</p>
+          <p className={styles.eyebrow}>THE PRODUCT, IN FOCUS</p>
           <h2>
             One receipt.
             <br />
-            <em>The whole picture.</em>
+            <span className={styles.gradientText}>The whole picture.</span>
           </h2>
         </div>
         <p>
@@ -89,39 +79,43 @@ export function CapabilityStudio() {
       <div className={styles.studio} onFocusCapture={() => setPaused(true)}>
         <div className={styles.studioCopy}>
           <div
-            className={styles.tabs}
             role="tablist"
             aria-label="Expense workflow"
+            className={styles.tabs}
           >
-            {stages.map(({ label, icon: Icon }, index) => (
+            {steps.map(({ label, icon: Icon }, i) => (
               <button
                 key={label}
                 ref={(el) => {
-                  tabs.current[index] = el;
+                  tabs.current[i] = el;
                 }}
-                id={"workflow-tab-" + index}
+                id={"workflow-tab-" + i}
                 role="tab"
-                type="button"
-                aria-selected={stage === index}
+                aria-selected={step === i}
                 aria-controls="workflow-panel"
-                tabIndex={stage === index ? 0 : -1}
+                tabIndex={step === i ? 0 : -1}
+                className={step === i ? styles.selectedTab : ""}
                 onClick={() => {
-                  setStage(index);
+                  setStep(i);
                   setPaused(true);
                 }}
                 onKeyDown={(e) => {
-                  let next = stage;
-                  if (e.key === "ArrowRight") next = (stage + 1) % 3;
-                  else if (e.key === "ArrowLeft") next = (stage + 2) % 3;
-                  else if (e.key === "Home") next = 0;
-                  else if (e.key === "End") next = 2;
-                  else return;
+                  const next =
+                    e.key === "ArrowRight"
+                      ? (step + 1) % 3
+                      : e.key === "ArrowLeft"
+                        ? (step + 2) % 3
+                        : e.key === "Home"
+                          ? 0
+                          : e.key === "End"
+                            ? 2
+                            : null;
+                  if (next === null) return;
                   e.preventDefault();
-                  setStage(next);
+                  setStep(next);
                   setPaused(true);
                   tabs.current[next]?.focus();
                 }}
-                className={stage === index ? styles.selectedTab : ""}
               >
                 <Icon size={15} />
                 {label}
@@ -129,17 +123,19 @@ export function CapabilityStudio() {
             ))}
           </div>
           <div
-            key={stage}
+            key={step}
             className={styles.stageCopy}
             role="tabpanel"
             id="workflow-panel"
-            aria-labelledby={"workflow-tab-" + stage}
+            aria-labelledby={"workflow-tab-" + step}
           >
-            <p className={styles.kicker}>{current.kicker}</p>
-            <h3>{current.title}</h3>
-            <p>{current.text}</p>
+            <p className={styles.eyebrow}>
+              0{step + 1} / FROM EVIDENCE TO ACTION
+            </p>
+            <h3>{steps[step].title}</h3>
+            <p>{steps[step].text}</p>
           </div>
-          <div className={styles.demoPlayback}>
+          <div className={styles.playback}>
             <span>
               <i
                 className={
@@ -153,10 +149,9 @@ export function CapabilityStudio() {
                   : "A guided look inside"}
             </span>
             <button
-              type="button"
-              aria-label={paused ? "Play walkthrough" : "Pause walkthrough"}
               disabled={reduced}
               onClick={() => setPaused((p) => !p)}
+              aria-label={paused ? "Play walkthrough" : "Pause walkthrough"}
             >
               {paused ? <Play size={14} /> : <Pause size={14} />}
             </button>
@@ -169,127 +164,120 @@ export function CapabilityStudio() {
               <i />
               <i />
             </span>
-            <strong>ClaimLens / Expense review</strong>
-            <span className={styles.exampleLabel}>ILLUSTRATIVE EXAMPLE</span>
+            <b>ClaimLens / Expense review</b>
+            <small>ILLUSTRATIVE EXAMPLE</small>
           </div>
           <div className={styles.demoCanvas}>
-            <div className={styles.demoReceipt}>
-              <div className={styles.receiptEmblem}>
-                <FileText size={22} />
-              </div>
-              <span>FIELDNOTES CAFE</span>
-              <small>12 OCT 2026 · USD</small>
-              <div className={styles.dottedLine} />
+            <div className={styles.miniReceipt}>
               <div>
-                <span>Working lunch</span>
-                <strong>18.00</strong>
+                <ReceiptText size={21} />
+                <small>ORIGINAL EVIDENCE</small>
               </div>
-              <div>
-                <span>Coffee</span>
-                <strong>4.00</strong>
-              </div>
-              <div>
-                <span>Tax</span>
-                <strong>2.00</strong>
-              </div>
-              <div className={styles.dottedLine} />
-              <div className={styles.receiptTotal}>
-                <span>Total</span>
-                <strong>24.00</strong>
-              </div>
-              <small>Original evidence stays available.</small>
-              {stage === 0 && <span className={styles.demoScan} />}
+              <h4>Fieldnotes Café</h4>
+              <p>12 OCT 2026 · OFFICE LUNCH</p>
+              <dl>
+                <div>
+                  <dt>Working lunch</dt>
+                  <dd>400.00</dd>
+                </div>
+                <div>
+                  <dt>Tax + tip</dt>
+                  <dd>80.00</dd>
+                </div>
+              </dl>
+              <footer>
+                <span>TOTAL INR</span>
+                <strong>480.00</strong>
+              </footer>
+              <div className={styles.barcode} />
             </div>
-            <div key={stage} className={styles.analysisCard}>
-              <div className={styles.analysisIcon}>
-                {stage === 0 ? (
-                  <ScanLine size={19} />
-                ) : stage === 1 ? (
-                  <ShieldCheck size={19} />
+            <div className={styles.demoConnector}>
+              <span />
+              <ArrowUpRight size={21} />
+              <span />
+            </div>
+            <div key={step} className={styles.findingCard}>
+              <span className={styles.findingIcon}>
+                {step === 0 ? (
+                  <ScanLine size={24} />
+                ) : step === 1 ? (
+                  <Layers3 size={24} />
                 ) : (
-                  <GitBranch size={19} />
+                  <ShieldCheck size={24} />
                 )}
-              </div>
-              <p className={styles.analysisKicker}>
-                {stage === 0
-                  ? "RECEIPT DETAILS"
-                  : stage === 1
-                    ? "POLICY CONTEXT"
-                    : "YOUR NEXT STEP"}
+              </span>
+              <p className={styles.eyebrow}>
+                {["RECEIPT DETAILS", "POLICY CONTEXT", "REVIEW FINDING"][step]}
               </p>
               <h4>
-                {stage === 0
-                  ? "A clearer starting point."
-                  : stage === 1
-                    ? "The right allowance."
-                    : "Ready for a human decision."}
+                {
+                  [
+                    "Evidence captured.",
+                    "The right context.",
+                    "Ready for a review.",
+                  ][step]
+                }
               </h4>
-              {stage === 0 ? (
-                <>
-                  <div className={styles.evidenceRow}>
+              {step === 0 ? (
+                <div className={styles.factList}>
+                  <p>
                     <span>Merchant</span>
-                    <strong>
-                      Fieldnotes Cafe <Check size={12} />
-                    </strong>
-                  </div>
-                  <div className={styles.evidenceRow}>
-                    <span>Original amount</span>
-                    <strong>USD 24.00</strong>
-                  </div>
-                  <div className={styles.evidenceRow}>
-                    <span>Arithmetic</span>
-                    <strong>18 + 4 + 2 = 24</strong>
-                  </div>
-                  <p className={styles.demoHint}>
-                    <CornerDownRight size={13} />
-                    Review extracted fields before submission.
+                    <b>Fieldnotes Café</b>
                   </p>
-                </>
-              ) : stage === 1 ? (
-                <>
-                  <div className={styles.evidenceRow}>
-                    <span>Example daily allowance</span>
-                    <strong>USD 25.00</strong>
-                  </div>
-                  <div className={styles.allowanceMeter}>
-                    <span style={{ width: "96%" }} />
-                  </div>
-                  <p className={styles.meterCaption}>
-                    24.00 of 25.00 · This example only
+                  <p>
+                    <span>Original total</span>
+                    <b>INR 480.00</b>
                   </p>
-                  <div className={styles.contextNote}>
-                    <ShieldCheck size={15} />
-                    <span>
-                      Same employee. Same date.
-                      <br />
-                      Same comparison currency.
-                    </span>
-                  </div>
-                </>
+                  <p>
+                    <span>Currency evidence</span>
+                    <b>Explicit INR</b>
+                  </p>
+                </div>
+              ) : step === 1 ? (
+                <div className={styles.factList}>
+                  <p>
+                    <span>Example office cap</span>
+                    <b>INR 500.00 / day</b>
+                  </p>
+                  <p>
+                    <span>Earlier spending</span>
+                    <b>INR 0.00</b>
+                  </p>
+                  <p>
+                    <span>Current receipt</span>
+                    <b>INR 480.00</b>
+                  </p>
+                </div>
               ) : (
-                <>
-                  <p className={styles.decisionExplanation}>
-                    Within this example’s limit. The reviewer checks the receipt
-                    and records the decision.
+                <div className={styles.factList}>
+                  <p>
+                    <span>
+                      <Check size={13} /> Within example limit
+                    </span>
                   </p>
-                  <div className={styles.exampleAction}>
-                    <Check size={14} />
-                    Finance approval still required
-                  </div>
-                  <p className={styles.demoHint}>
-                    <FileText size={13} />
-                    The decision and its reason stay together.
+                  <p>
+                    <span>
+                      <Check size={13} /> Evidence available
+                    </span>
                   </p>
-                </>
+                  <p>
+                    <span>
+                      <AlertCircle size={13} /> Finance decision required
+                    </span>
+                  </p>
+                </div>
               )}
+              <div className={styles.demoOutcome}>
+                <i />
+                {step === 2
+                  ? "Checks inform. People decide."
+                  : "Every finding has a source."}
+              </div>
             </div>
           </div>
-          <div className={styles.demoFooter}>
-            <Info size={12} />
-            <span>
-              Example figures explain the workflow. Your workspace uses your own
-              receipts and confirmed policy.
-            </span>
+          <div className={styles.demoFootnote}>
+            <ShieldCheck size={13} /> Example only. Actual findings use your
+            company policy and receipt evidence.
           </div>
         </div>
       </div>

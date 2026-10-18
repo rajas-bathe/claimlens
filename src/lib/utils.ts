@@ -1,5 +1,5 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 /** Merge Tailwind classes with clsx */
 export function cn(...inputs: ClassValue[]) {
@@ -10,13 +10,14 @@ export function cn(...inputs: ClassValue[]) {
 export function formatCurrency(
   amount: number | null | undefined,
   currency: string | null | undefined,
-  options?: Intl.NumberFormatOptions
+  options?: Intl.NumberFormatOptions,
 ): string {
-  if (amount === null || amount === undefined) return '—';
-  const curr = currency?.toUpperCase() ?? 'USD';
+  if (amount === null || amount === undefined) return "—";
+  const curr = currency?.toUpperCase();
+  if (!curr) return `${amount.toFixed(2)} · Currency unconfirmed`;
   try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
       currency: curr,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -30,13 +31,13 @@ export function formatCurrency(
 /** Format a date string (ISO or YYYY-MM-DD) to a readable format */
 export function formatDate(
   date: string | null | undefined,
-  style: 'short' | 'medium' | 'long' = 'medium'
+  style: "short" | "medium" | "long" = "medium",
 ): string {
-  if (!date) return '—';
+  if (!date) return "—";
   try {
     const d = new Date(date);
     if (isNaN(d.getTime())) return date;
-    return new Intl.DateTimeFormat('en-US', { dateStyle: style }).format(d);
+    return new Intl.DateTimeFormat("en-US", { dateStyle: style }).format(d);
   } catch {
     return date;
   }
@@ -44,13 +45,13 @@ export function formatDate(
 
 /** Format a datetime string */
 export function formatDateTime(datetime: string | null | undefined): string {
-  if (!datetime) return '—';
+  if (!datetime) return "—";
   try {
     const d = new Date(datetime);
     if (isNaN(d.getTime())) return datetime;
-    return new Intl.DateTimeFormat('en-US', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
     }).format(d);
   } catch {
     return datetime;
@@ -65,13 +66,13 @@ export function capitalize(s: string): string {
 
 /** Convert snake_case to Title Case */
 export function snakeToTitle(s: string): string {
-  return s.split('_').map(capitalize).join(' ');
+  return s.split("_").map(capitalize).join(" ");
 }
 
 /** Truncate text to max length */
 export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - 1) + '…';
+  return text.slice(0, maxLength - 1) + "…";
 }
 
 /** Safe JSON parse – returns null on failure */
@@ -92,9 +93,9 @@ export function sleep(ms: number): Promise<void> {
 /** Compute SHA-256 hash of a File using Web Crypto API */
 export async function hashFile(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 /** Validate file type against allowed MIME types */
@@ -109,11 +110,11 @@ export function validateFileSize(file: File, maxBytes: number): boolean {
 
 /** Get initials from a name */
 export function getInitials(name: string | null | undefined): string {
-  if (!name) return '??';
+  if (!name) return "??";
   return name
-    .split(' ')
+    .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((w) => w[0].toUpperCase())
-    .join('');
+    .join("");
 }

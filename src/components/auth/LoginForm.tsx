@@ -26,33 +26,50 @@ export function LoginForm({ searchParams: _ }: LoginFormProps) {
     const supabase = createClient();
 
     startTransition(async () => {
-      if (mode === "signin") {
-        const { error: authError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (authError) {
-          setError(authError.message);
-          return;
+      try {
+        if (mode === "signin") {
+          const { error: authError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (authError) {
+            setError(authError.message);
+            return;
+          }
+          const access = await fetch("/api/workspace-access", {
+            cache: "no-store",
+          });
+          if (!access.ok) {
+            const response = await access.json();
+            setError(
+              response.error ||
+                "Ask your administrator to assign your company membership.",
+            );
+            return;
+          }
+          router.push("/dashboard");
+          router.refresh();
+        } else {
+          const { error: authError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            },
+          });
+          if (authError) {
+            setError(authError.message);
+            return;
+          }
+          setError(null);
+          // Show confirmation message
+          setMode("signin");
+          setError("Check your email for a confirmation link, then sign in.");
         }
-        router.push("/dashboard");
-        router.refresh();
-      } else {
-        const { error: authError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-        if (authError) {
-          setError(authError.message);
-          return;
-        }
-        setError(null);
-        // Show confirmation message
-        setMode("signin");
-        setError("Check your email for a confirmation link, then sign in.");
+      } catch {
+        setError(
+          "Could not check workspace access. Please try signing in again.",
+        );
       }
     });
   }

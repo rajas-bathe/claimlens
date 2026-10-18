@@ -1,0 +1,3068 @@
+{
+  "run_at": "2026-10-18T03:29:23.419Z",
+  "limitations": "Small synthetic diagnostic, not real-world accuracy. Handwritten case is a font simulation, not authentic handwriting. String matches do not prove field correctness; absent text must not be reconstructed. Confidence is not accuracy. No images were sent to external providers.",
+  "results": [
+    {
+      "id": "01-clean",
+      "provenance": "synthetic original",
+      "duration_ms": 584,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:16.290Z",
+        "status": "checked",
+        "width": 700,
+        "height": 900,
+        "metrics": {
+          "sharpness": 1787.93,
+          "contrast": 30.68,
+          "clipped_white_fraction": 0.975047619047619
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:16.873Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\nFieldnotes Cafe\n\nDate: 2026-10-12\n\nCurrency: USD\n\nSandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\nTOTAL 22.00\nReceipt fixture / Clainlens evaluation\n",
+        "confidence": 92,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.035555555555555556,
+              0.16428571428571428,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 93,
+            "box": [
+              0.18142857142857144,
+              0.035555555555555556,
+              0.2914285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 93,
+            "box": [
+              0.30714285714285716,
+              0.035555555555555556,
+              0.38285714285714284,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 90,
+            "box": [
+              0.3985714285714286,
+              0.042222222222222223,
+              0.4042857142857143,
+              0.043333333333333335
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 96,
+            "box": [
+              0.42,
+              0.035555555555555556,
+              0.4514285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 96,
+            "box": [
+              0.4642857142857143,
+              0.035555555555555556,
+              0.4757142857142857,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 96,
+            "box": [
+              0.48857142857142855,
+              0.035555555555555556,
+              0.5314285714285715,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 94,
+            "box": [
+              0.5457142857142857,
+              0.035555555555555556,
+              0.6342857142857142,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "Fieldnotes",
+            "confidence": 92,
+            "box": [
+              0.06857142857142857,
+              0.09555555555555556,
+              0.3314285714285714,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Cafe",
+            "confidence": 96,
+            "box": [
+              0.3657142857142857,
+              0.09666666666666666,
+              0.4685714285714286,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Date:",
+            "confidence": 93,
+            "box": [
+              0.06571428571428571,
+              0.17,
+              0.15714285714285714,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "2026-10-12",
+            "confidence": 95,
+            "box": [
+              0.18714285714285714,
+              0.17,
+              0.38142857142857145,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "Currency:",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.22,
+              0.23714285714285716,
+              0.24333333333333335
+            ]
+          },
+          {
+            "text": "USD",
+            "confidence": 95,
+            "box": [
+              0.26571428571428574,
+              0.22,
+              0.32285714285714284,
+              0.23777777777777778
+            ]
+          },
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.3244444444444444,
+              0.22142857142857142,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 91,
+            "box": [
+              0.7671428571428571,
+              0.32555555555555554,
+              0.8628571428571429,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.39111111111111113,
+              0.18142857142857144,
+              0.41
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 94,
+            "box": [
+              0.7657142857142857,
+              0.39222222222222225,
+              0.8428571428571429,
+              0.41
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.5188888888888888,
+              0.22142857142857142,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 93,
+            "box": [
+              0.7671428571428571,
+              0.52,
+              0.8628571428571429,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.5755555555555556,
+              0.12285714285714286,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.7671428571428571,
+              0.5755555555555556,
+              0.8428571428571429,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.6711111111111111,
+              0.19714285714285715,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "22.00",
+            "confidence": 96,
+            "box": [
+              0.7457142857142857,
+              0.6711111111111111,
+              0.8771428571428571,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 93,
+            "box": [
+              0.06714285714285714,
+              0.9411111111111111,
+              0.14285714285714285,
+              0.9555555555555556
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 74,
+            "box": [
+              0.15714285714285714,
+              0.9433333333333334,
+              0.2342857142857143,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 93,
+            "box": [
+              0.24714285714285714,
+              0.9277777777777778,
+              0.26,
+              0.9633333333333334
+            ]
+          },
+          {
+            "text": "Clainlens",
+            "confidence": 57,
+            "box": [
+              0.2714285714285714,
+              0.9411111111111111,
+              0.37,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 96,
+            "box": [
+              0.38571428571428573,
+              0.9411111111111111,
+              0.49714285714285716,
+              0.9522222222222222
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": true,
+        "date": true,
+        "currency": true,
+        "amount": true
+      }
+    },
+    {
+      "id": "02-handwritten",
+      "provenance": "synthetic original",
+      "duration_ms": 672,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:16.892Z",
+        "status": "checked",
+        "width": 700,
+        "height": 900,
+        "metrics": {
+          "sharpness": 2184.66,
+          "contrast": 34.63,
+          "clipped_white_fraction": 0.9663031746031746
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:17.565Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\nBlue Harbor Bistro\nDate: 2023-10-24\nCurrency: USD\nCaesar Salad 16.00\nGrilled Salmon 28.00\nSubtotal 44.00\nTax 3.96\nPrinted total 47.96\nAddition +8.00\nFinal total 55.96\nReceipt fixture / Claimlens evaluation\n",
+        "confidence": 93,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.035555555555555556,
+              0.16428571428571428,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 96,
+            "box": [
+              0.18142857142857144,
+              0.035555555555555556,
+              0.2914285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 93,
+            "box": [
+              0.30714285714285716,
+              0.035555555555555556,
+              0.38285714285714284,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 92,
+            "box": [
+              0.3985714285714286,
+              0.042222222222222223,
+              0.4042857142857143,
+              0.043333333333333335
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 96,
+            "box": [
+              0.42,
+              0.035555555555555556,
+              0.4514285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 95,
+            "box": [
+              0.4642857142857143,
+              0.035555555555555556,
+              0.4757142857142857,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 95,
+            "box": [
+              0.48857142857142855,
+              0.035555555555555556,
+              0.5314285714285715,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 96,
+            "box": [
+              0.5457142857142857,
+              0.035555555555555556,
+              0.6342857142857142,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "Blue",
+            "confidence": 96,
+            "box": [
+              0.06857142857142857,
+              0.09666666666666666,
+              0.17,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Harbor",
+            "confidence": 96,
+            "box": [
+              0.20285714285714285,
+              0.09666666666666666,
+              0.36142857142857143,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Bistro",
+            "confidence": 96,
+            "box": [
+              0.3942857142857143,
+              0.09555555555555556,
+              0.5514285714285714,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Date:",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.17,
+              0.15714285714285714,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "2023-10-24",
+            "confidence": 96,
+            "box": [
+              0.18714285714285714,
+              0.17,
+              0.38285714285714284,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "Currency:",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.22,
+              0.23714285714285716,
+              0.24333333333333335
+            ]
+          },
+          {
+            "text": "USD",
+            "confidence": 95,
+            "box": [
+              0.26571428571428574,
+              0.22,
+              0.32285714285714284,
+              0.23777777777777778
+            ]
+          },
+          {
+            "text": "Caesar",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.32555555555555554,
+              0.18285714285714286,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "Salad",
+            "confidence": 95,
+            "box": [
+              0.2057142857142857,
+              0.3244444444444444,
+              0.30142857142857143,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "16.00",
+            "confidence": 93,
+            "box": [
+              0.7671428571428571,
+              0.32555555555555554,
+              0.8628571428571429,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "Grilled",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.39111111111111113,
+              0.20142857142857143,
+              0.41
+            ]
+          },
+          {
+            "text": "Salmon",
+            "confidence": 96,
+            "box": [
+              0.2257142857142857,
+              0.39111111111111113,
+              0.3414285714285714,
+              0.41
+            ]
+          },
+          {
+            "text": "28.00",
+            "confidence": 93,
+            "box": [
+              0.7671428571428571,
+              0.39222222222222225,
+              0.8628571428571429,
+              0.41
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.5188888888888888,
+              0.22142857142857142,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "44.00",
+            "confidence": 88,
+            "box": [
+              0.7642857142857142,
+              0.52,
+              0.8628571428571429,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.5755555555555556,
+              0.12285714285714286,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "3.96",
+            "confidence": 96,
+            "box": [
+              0.7671428571428571,
+              0.5755555555555556,
+              0.8428571428571429,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "Printed",
+            "confidence": 96,
+            "box": [
+              0.06857142857142857,
+              0.6677777777777778,
+              0.25142857142857145,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "total",
+            "confidence": 95,
+            "box": [
+              0.28285714285714286,
+              0.6688888888888889,
+              0.4142857142857143,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "47.96",
+            "confidence": 95,
+            "box": [
+              0.7442857142857143,
+              0.6711111111111111,
+              0.8771428571428571,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "Addition",
+            "confidence": 93,
+            "box": [
+              0.09857142857142857,
+              0.7722222222222223,
+              0.2542857142857143,
+              0.7977777777777778
+            ]
+          },
+          {
+            "text": "+8.00",
+            "confidence": 92,
+            "box": [
+              0.2742857142857143,
+              0.7744444444444445,
+              0.37714285714285717,
+              0.7977777777777778
+            ]
+          },
+          {
+            "text": "Final",
+            "confidence": 96,
+            "box": [
+              0.10142857142857142,
+              0.8388888888888889,
+              0.19142857142857142,
+              0.8644444444444445
+            ]
+          },
+          {
+            "text": "total",
+            "confidence": 96,
+            "box": [
+              0.2057142857142857,
+              0.8388888888888889,
+              0.2885714285714286,
+              0.8644444444444445
+            ]
+          },
+          {
+            "text": "55.96",
+            "confidence": 96,
+            "box": [
+              0.30142857142857143,
+              0.8411111111111111,
+              0.4014285714285714,
+              0.8644444444444445
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 95,
+            "box": [
+              0.06714285714285714,
+              0.9411111111111111,
+              0.14285714285714285,
+              0.9555555555555556
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 91,
+            "box": [
+              0.15714285714285714,
+              0.9433333333333334,
+              0.2342857142857143,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 91,
+            "box": [
+              0.25142857142857145,
+              0.9411111111111111,
+              0.2571428571428571,
+              0.95
+            ]
+          },
+          {
+            "text": "Claimlens",
+            "confidence": 58,
+            "box": [
+              0.2714285714285714,
+              0.9411111111111111,
+              0.37,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 96,
+            "box": [
+              0.38571428571428573,
+              0.9411111111111111,
+              0.49714285714285716,
+              0.9522222222222222
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": true,
+        "date": true,
+        "currency": true,
+        "amount": true
+      }
+    },
+    {
+      "id": "03-rotated",
+      "provenance": "90-degree rotation of synthetic clean receipt",
+      "duration_ms": 1886,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:17.584Z",
+        "status": "checked",
+        "width": 900,
+        "height": 700,
+        "metrics": {
+          "sharpness": 1787.93,
+          "contrast": 30.68,
+          "clipped_white_fraction": 0.975047619047619
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:19.470Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\nFieldnotes Cafe\n\nDate: 2026-10-12\n\nCurrency: USD\n\nSandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\nTOTAL 22.00\nReceipt fixture / Clainlens evaluation\n",
+        "confidence": 92,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 95,
+            "box": [
+              0.035555555555555556,
+              0.8357142857142857,
+              0.04666666666666667,
+              0.9342857142857143
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 93,
+            "box": [
+              0.035555555555555556,
+              0.7085714285714286,
+              0.04666666666666667,
+              0.8185714285714285
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 93,
+            "box": [
+              0.035555555555555556,
+              0.6171428571428572,
+              0.04666666666666667,
+              0.6928571428571428
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 90,
+            "box": [
+              0.042222222222222223,
+              0.5957142857142856,
+              0.043333333333333335,
+              0.6014285714285714
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 96,
+            "box": [
+              0.035555555555555556,
+              0.5485714285714286,
+              0.04666666666666667,
+              0.5800000000000001
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 96,
+            "box": [
+              0.035555555555555556,
+              0.5242857142857142,
+              0.04666666666666667,
+              0.5357142857142857
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 96,
+            "box": [
+              0.035555555555555556,
+              0.4685714285714285,
+              0.04666666666666667,
+              0.5114285714285715
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 94,
+            "box": [
+              0.035555555555555556,
+              0.36571428571428577,
+              0.04666666666666667,
+              0.4542857142857143
+            ]
+          },
+          {
+            "text": "Fieldnotes",
+            "confidence": 92,
+            "box": [
+              0.09555555555555556,
+              0.6685714285714286,
+              0.12333333333333334,
+              0.9314285714285714
+            ]
+          },
+          {
+            "text": "Cafe",
+            "confidence": 96,
+            "box": [
+              0.09666666666666666,
+              0.5314285714285714,
+              0.12333333333333334,
+              0.6342857142857143
+            ]
+          },
+          {
+            "text": "Date:",
+            "confidence": 93,
+            "box": [
+              0.17,
+              0.8428571428571429,
+              0.18777777777777777,
+              0.9342857142857143
+            ]
+          },
+          {
+            "text": "2026-10-12",
+            "confidence": 95,
+            "box": [
+              0.17,
+              0.6185714285714285,
+              0.18777777777777777,
+              0.8128571428571428
+            ]
+          },
+          {
+            "text": "Currency:",
+            "confidence": 95,
+            "box": [
+              0.22,
+              0.7628571428571429,
+              0.24333333333333335,
+              0.9342857142857143
+            ]
+          },
+          {
+            "text": "USD",
+            "confidence": 95,
+            "box": [
+              0.22,
+              0.6771428571428572,
+              0.23777777777777778,
+              0.7342857142857142
+            ]
+          },
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.3244444444444444,
+              0.7785714285714286,
+              0.3433333333333333,
+              0.9342857142857143
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 91,
+            "box": [
+              0.32555555555555554,
+              0.13714285714285712,
+              0.3433333333333333,
+              0.23285714285714287
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 96,
+            "box": [
+              0.39111111111111113,
+              0.8185714285714285,
+              0.41,
+              0.9342857142857143
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 94,
+            "box": [
+              0.39222222222222225,
+              0.15714285714285714,
+              0.41,
+              0.23428571428571432
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.5188888888888888,
+              0.7785714285714286,
+              0.5377777777777778,
+              0.9342857142857143
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 93,
+            "box": [
+              0.52,
+              0.13714285714285712,
+              0.5377777777777778,
+              0.23285714285714287
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.5755555555555556,
+              0.8771428571428571,
+              0.5933333333333334,
+              0.9342857142857143
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.5755555555555556,
+              0.15714285714285714,
+              0.5933333333333334,
+              0.23285714285714287
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "confidence": 96,
+            "box": [
+              0.6711111111111111,
+              0.8028571428571428,
+              0.6955555555555556,
+              0.9342857142857143
+            ]
+          },
+          {
+            "text": "22.00",
+            "confidence": 96,
+            "box": [
+              0.6711111111111111,
+              0.12285714285714289,
+              0.6955555555555556,
+              0.25428571428571434
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 93,
+            "box": [
+              0.9411111111111111,
+              0.8571428571428572,
+              0.9555555555555556,
+              0.9328571428571428
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 74,
+            "box": [
+              0.9433333333333334,
+              0.7657142857142857,
+              0.9522222222222222,
+              0.8428571428571429
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 93,
+            "box": [
+              0.9277777777777778,
+              0.74,
+              0.9633333333333334,
+              0.7528571428571429
+            ]
+          },
+          {
+            "text": "Clainlens",
+            "confidence": 57,
+            "box": [
+              0.9411111111111111,
+              0.63,
+              0.9522222222222222,
+              0.7285714285714286
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 96,
+            "box": [
+              0.9411111111111111,
+              0.5028571428571429,
+              0.9522222222222222,
+              0.6142857142857143
+            ]
+          }
+        ],
+        "quality_issues": [
+          {
+            "kind": "distortion",
+            "source": "ocr_geometry",
+            "message": "OCR needed a rotated reading or detected strongly tilted text. Inspect the original orientation; this signal does not measure every kind of perspective distortion."
+          }
+        ],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 90 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": true,
+        "date": true,
+        "currency": true,
+        "amount": true
+      }
+    },
+    {
+      "id": "04-cropped",
+      "provenance": "Crop removes header, date, currency and final total; subtotal remains",
+      "duration_ms": 416,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:19.482Z",
+        "status": "checked",
+        "width": 700,
+        "height": 320,
+        "metrics": {
+          "sharpness": 1328.5,
+          "contrast": 26.25,
+          "clipped_white_fraction": 0.9817366071428572
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:19.897Z",
+        "engine": "tesseract-eng",
+        "text": "Sandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\n",
+        "confidence": 94,
+        "words": [
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.13125,
+              0.22142857142857142,
+              0.184375
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 91,
+            "box": [
+              0.7671428571428571,
+              0.134375,
+              0.8628571428571429,
+              0.184375
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.31875,
+              0.18142857142857144,
+              0.371875
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 94,
+            "box": [
+              0.7657142857142857,
+              0.321875,
+              0.8428571428571429,
+              0.371875
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.678125,
+              0.22142857142857142,
+              0.73125
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 93,
+            "box": [
+              0.7671428571428571,
+              0.68125,
+              0.8628571428571429,
+              0.73125
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.8375,
+              0.12285714285714286,
+              0.8875
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.7671428571428571,
+              0.8375,
+              0.8428571428571429,
+              0.8875
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": "not visible in ground truth; manual review",
+        "date": "not visible in ground truth; manual review",
+        "currency": "not visible in ground truth; manual review",
+        "amount": "not visible in ground truth; manual review"
+      }
+    },
+    {
+      "id": "05-faded",
+      "provenance": "Merchant, date, currency and total deliberately erased before fading",
+      "duration_ms": 500,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:19.913Z",
+        "status": "checked",
+        "width": 700,
+        "height": 900,
+        "metrics": {
+          "sharpness": 0.76,
+          "contrast": 2.03,
+          "clipped_white_fraction": 0
+        },
+        "issues": [
+          {
+            "kind": "faded",
+            "source": "pixel_heuristic",
+            "message": "Very little text contrast was found. Try even lighting or obtain a clearer original."
+          }
+        ],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:20.412Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\n\nSandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\nTOTAL\n\nReceipt fixture / Claialens evaluation\n",
+        "confidence": 89,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 78,
+            "box": [
+              0.06571428571428571,
+              0.035555555555555556,
+              0.16142857142857142,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 95,
+            "box": [
+              0.18,
+              0.035555555555555556,
+              0.29285714285714287,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 92,
+            "box": [
+              0.3057142857142857,
+              0.035555555555555556,
+              0.38,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 83,
+            "box": [
+              0.39714285714285713,
+              0.02,
+              0.41,
+              0.056666666666666664
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 94,
+            "box": [
+              0.42,
+              0.035555555555555556,
+              0.45,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 96,
+            "box": [
+              0.4657142857142857,
+              0.035555555555555556,
+              0.4757142857142857,
+              0.04555555555555556
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 96,
+            "box": [
+              0.48857142857142855,
+              0.035555555555555556,
+              0.5285714285714286,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 94,
+            "box": [
+              0.5457142857142857,
+              0.035555555555555556,
+              0.6314285714285715,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.3188888888888889,
+              0.22285714285714286,
+              0.35555555555555557
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 94,
+            "box": [
+              0.7671428571428571,
+              0.3244444444444444,
+              0.8642857142857143,
+              0.34444444444444444
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 95,
+            "box": [
+              0.06428571428571428,
+              0.38555555555555554,
+              0.18285714285714286,
+              0.4211111111111111
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 95,
+            "box": [
+              0.7657142857142857,
+              0.39111111111111113,
+              0.8442857142857143,
+              0.4111111111111111
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.5177777777777778,
+              0.22142857142857142,
+              0.5388888888888889
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 95,
+            "box": [
+              0.7657142857142857,
+              0.5188888888888888,
+              0.8642857142857143,
+              0.5388888888888889
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.5744444444444444,
+              0.12285714285714286,
+              0.5944444444444444
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.7657142857142857,
+              0.5744444444444444,
+              0.8442857142857143,
+              0.5944444444444444
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.67,
+              0.19714285714285715,
+              0.6966666666666667
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 94,
+            "box": [
+              0.06571428571428571,
+              0.9422222222222222,
+              0.14,
+              0.9533333333333334
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 93,
+            "box": [
+              0.15857142857142856,
+              0.9422222222222222,
+              0.2342857142857143,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 93,
+            "box": [
+              0.24857142857142858,
+              0.9255555555555556,
+              0.26142857142857145,
+              0.9622222222222222
+            ]
+          },
+          {
+            "text": "Claialens",
+            "confidence": 25,
+            "box": [
+              0.2714285714285714,
+              0.9411111111111111,
+              0.37,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 79,
+            "box": [
+              0.38571428571428573,
+              0.9411111111111111,
+              0.4928571428571429,
+              0.9522222222222222
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": "not visible in ground truth; manual review",
+        "date": "not visible in ground truth; manual review",
+        "currency": "not visible in ground truth; manual review",
+        "amount": "not visible in ground truth; manual review"
+      }
+    },
+    {
+      "id": "06-inconsistent",
+      "provenance": "synthetic original",
+      "duration_ms": 572,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:20.432Z",
+        "status": "checked",
+        "width": 700,
+        "height": 900,
+        "metrics": {
+          "sharpness": 1789.27,
+          "contrast": 30.74,
+          "clipped_white_fraction": 0.9749142857142857
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:21.004Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\nFieldnotes Cafe\n\nDate: 2026-10-12\n\nCurrency: USD\n\nSandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\nTOTAL 30.00\nReceipt fixture / Clainlens evaluation\n",
+        "confidence": 92,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.035555555555555556,
+              0.16428571428571428,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 93,
+            "box": [
+              0.18142857142857144,
+              0.035555555555555556,
+              0.2914285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 93,
+            "box": [
+              0.30714285714285716,
+              0.035555555555555556,
+              0.38285714285714284,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 90,
+            "box": [
+              0.3985714285714286,
+              0.042222222222222223,
+              0.4042857142857143,
+              0.043333333333333335
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 96,
+            "box": [
+              0.42,
+              0.035555555555555556,
+              0.4514285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 96,
+            "box": [
+              0.4642857142857143,
+              0.035555555555555556,
+              0.4757142857142857,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 96,
+            "box": [
+              0.48857142857142855,
+              0.035555555555555556,
+              0.5314285714285715,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 94,
+            "box": [
+              0.5457142857142857,
+              0.035555555555555556,
+              0.6342857142857142,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "Fieldnotes",
+            "confidence": 92,
+            "box": [
+              0.06857142857142857,
+              0.09555555555555556,
+              0.3314285714285714,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Cafe",
+            "confidence": 96,
+            "box": [
+              0.3657142857142857,
+              0.09666666666666666,
+              0.4685714285714286,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Date:",
+            "confidence": 93,
+            "box": [
+              0.06571428571428571,
+              0.17,
+              0.15714285714285714,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "2026-10-12",
+            "confidence": 95,
+            "box": [
+              0.18714285714285714,
+              0.17,
+              0.38142857142857145,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "Currency:",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.22,
+              0.23714285714285716,
+              0.24333333333333335
+            ]
+          },
+          {
+            "text": "USD",
+            "confidence": 95,
+            "box": [
+              0.26571428571428574,
+              0.22,
+              0.32285714285714284,
+              0.23777777777777778
+            ]
+          },
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.3244444444444444,
+              0.22142857142857142,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 91,
+            "box": [
+              0.7671428571428571,
+              0.32555555555555554,
+              0.8628571428571429,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.39111111111111113,
+              0.18142857142857144,
+              0.41
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 94,
+            "box": [
+              0.7657142857142857,
+              0.39222222222222225,
+              0.8428571428571429,
+              0.41
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.5188888888888888,
+              0.22142857142857142,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 93,
+            "box": [
+              0.7671428571428571,
+              0.52,
+              0.8628571428571429,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.5755555555555556,
+              0.12285714285714286,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.7671428571428571,
+              0.5755555555555556,
+              0.8428571428571429,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.6711111111111111,
+              0.19714285714285715,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "30.00",
+            "confidence": 96,
+            "box": [
+              0.7471428571428571,
+              0.6711111111111111,
+              0.8771428571428571,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 93,
+            "box": [
+              0.06714285714285714,
+              0.9411111111111111,
+              0.14285714285714285,
+              0.9555555555555556
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 74,
+            "box": [
+              0.15714285714285714,
+              0.9433333333333334,
+              0.2342857142857143,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 93,
+            "box": [
+              0.24714285714285714,
+              0.9277777777777778,
+              0.26,
+              0.9633333333333334
+            ]
+          },
+          {
+            "text": "Clainlens",
+            "confidence": 57,
+            "box": [
+              0.2714285714285714,
+              0.9411111111111111,
+              0.37,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 96,
+            "box": [
+              0.38571428571428573,
+              0.9411111111111111,
+              0.49714285714285716,
+              0.9522222222222222
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": true,
+        "date": true,
+        "currency": true,
+        "amount": true
+      }
+    },
+    {
+      "id": "07-ambiguous-dollar",
+      "provenance": "Synthetic receipt explicitly shows a currency symbol without an ISO code",
+      "duration_ms": 567,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:21.021Z",
+        "status": "checked",
+        "width": 700,
+        "height": 900,
+        "metrics": {
+          "sharpness": 1771.54,
+          "contrast": 30.5,
+          "clipped_white_fraction": 0.9753444444444445
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:21.588Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\nFieldnotes Cafe\n\nDate: 2026-10-12\n\nCurrency: $\n\nSandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\nTOTAL 22.00\nReceipt fixture / Clainlens evaluation\n",
+        "confidence": 92,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.035555555555555556,
+              0.16428571428571428,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 93,
+            "box": [
+              0.18142857142857144,
+              0.035555555555555556,
+              0.2914285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 93,
+            "box": [
+              0.30714285714285716,
+              0.035555555555555556,
+              0.38285714285714284,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 90,
+            "box": [
+              0.3985714285714286,
+              0.042222222222222223,
+              0.4042857142857143,
+              0.043333333333333335
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 96,
+            "box": [
+              0.42,
+              0.035555555555555556,
+              0.4514285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 96,
+            "box": [
+              0.4642857142857143,
+              0.035555555555555556,
+              0.4757142857142857,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 96,
+            "box": [
+              0.48857142857142855,
+              0.035555555555555556,
+              0.5314285714285715,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 94,
+            "box": [
+              0.5457142857142857,
+              0.035555555555555556,
+              0.6342857142857142,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "Fieldnotes",
+            "confidence": 92,
+            "box": [
+              0.06857142857142857,
+              0.09555555555555556,
+              0.3314285714285714,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Cafe",
+            "confidence": 96,
+            "box": [
+              0.3657142857142857,
+              0.09666666666666666,
+              0.4685714285714286,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Date:",
+            "confidence": 93,
+            "box": [
+              0.06571428571428571,
+              0.17,
+              0.15714285714285714,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "2026-10-12",
+            "confidence": 95,
+            "box": [
+              0.18714285714285714,
+              0.17,
+              0.38142857142857145,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "Currency:",
+            "confidence": 92,
+            "box": [
+              0.06571428571428571,
+              0.22,
+              0.23714285714285716,
+              0.24333333333333335
+            ]
+          },
+          {
+            "text": "$",
+            "confidence": 92,
+            "box": [
+              0.26571428571428574,
+              0.21777777777777776,
+              0.2814285714285714,
+              0.2411111111111111
+            ]
+          },
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.3244444444444444,
+              0.22142857142857142,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 91,
+            "box": [
+              0.7671428571428571,
+              0.32555555555555554,
+              0.8628571428571429,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.39111111111111113,
+              0.18142857142857144,
+              0.41
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 94,
+            "box": [
+              0.7657142857142857,
+              0.39222222222222225,
+              0.8428571428571429,
+              0.41
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.5188888888888888,
+              0.22142857142857142,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 93,
+            "box": [
+              0.7671428571428571,
+              0.52,
+              0.8628571428571429,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.5755555555555556,
+              0.12285714285714286,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.7671428571428571,
+              0.5755555555555556,
+              0.8428571428571429,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.6711111111111111,
+              0.19714285714285715,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "22.00",
+            "confidence": 96,
+            "box": [
+              0.7457142857142857,
+              0.6711111111111111,
+              0.8771428571428571,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 93,
+            "box": [
+              0.06714285714285714,
+              0.9411111111111111,
+              0.14285714285714285,
+              0.9555555555555556
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 74,
+            "box": [
+              0.15714285714285714,
+              0.9433333333333334,
+              0.2342857142857143,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 93,
+            "box": [
+              0.24714285714285714,
+              0.9277777777777778,
+              0.26,
+              0.9633333333333334
+            ]
+          },
+          {
+            "text": "Clainlens",
+            "confidence": 57,
+            "box": [
+              0.2714285714285714,
+              0.9411111111111111,
+              0.37,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 96,
+            "box": [
+              0.38571428571428573,
+              0.9411111111111111,
+              0.49714285714285716,
+              0.9522222222222222
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": true,
+        "date": true,
+        "currency": false,
+        "amount": true
+      }
+    },
+    {
+      "id": "08-eur",
+      "provenance": "synthetic original",
+      "duration_ms": 567,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:21.603Z",
+        "status": "checked",
+        "width": 700,
+        "height": 900,
+        "metrics": {
+          "sharpness": 1789.88,
+          "contrast": 30.69,
+          "clipped_white_fraction": 0.9750698412698413
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:22.170Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\nFieldnotes Cafe\n\nDate: 2026-10-12\n\nCurrency: EUR\n\nSandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\nTOTAL 22.00\nReceipt fixture / Clainlens evaluation\n",
+        "confidence": 92,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.035555555555555556,
+              0.16428571428571428,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 93,
+            "box": [
+              0.18142857142857144,
+              0.035555555555555556,
+              0.2914285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 93,
+            "box": [
+              0.30714285714285716,
+              0.035555555555555556,
+              0.38285714285714284,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 90,
+            "box": [
+              0.3985714285714286,
+              0.042222222222222223,
+              0.4042857142857143,
+              0.043333333333333335
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 96,
+            "box": [
+              0.42,
+              0.035555555555555556,
+              0.4514285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 96,
+            "box": [
+              0.4642857142857143,
+              0.035555555555555556,
+              0.4757142857142857,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 96,
+            "box": [
+              0.48857142857142855,
+              0.035555555555555556,
+              0.5314285714285715,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 94,
+            "box": [
+              0.5457142857142857,
+              0.035555555555555556,
+              0.6342857142857142,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "Fieldnotes",
+            "confidence": 92,
+            "box": [
+              0.06857142857142857,
+              0.09555555555555556,
+              0.3314285714285714,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Cafe",
+            "confidence": 96,
+            "box": [
+              0.3657142857142857,
+              0.09666666666666666,
+              0.4685714285714286,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Date:",
+            "confidence": 93,
+            "box": [
+              0.06571428571428571,
+              0.17,
+              0.15714285714285714,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "2026-10-12",
+            "confidence": 95,
+            "box": [
+              0.18714285714285714,
+              0.17,
+              0.38142857142857145,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "Currency:",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.22,
+              0.23714285714285716,
+              0.24333333333333335
+            ]
+          },
+          {
+            "text": "EUR",
+            "confidence": 96,
+            "box": [
+              0.2671428571428571,
+              0.22,
+              0.32285714285714284,
+              0.23777777777777778
+            ]
+          },
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.3244444444444444,
+              0.22142857142857142,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 91,
+            "box": [
+              0.7671428571428571,
+              0.32555555555555554,
+              0.8628571428571429,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.39111111111111113,
+              0.18142857142857144,
+              0.41
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 94,
+            "box": [
+              0.7657142857142857,
+              0.39222222222222225,
+              0.8428571428571429,
+              0.41
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.5188888888888888,
+              0.22142857142857142,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 93,
+            "box": [
+              0.7671428571428571,
+              0.52,
+              0.8628571428571429,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.5755555555555556,
+              0.12285714285714286,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.7671428571428571,
+              0.5755555555555556,
+              0.8428571428571429,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.6711111111111111,
+              0.19714285714285715,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "22.00",
+            "confidence": 96,
+            "box": [
+              0.7457142857142857,
+              0.6711111111111111,
+              0.8771428571428571,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 93,
+            "box": [
+              0.06714285714285714,
+              0.9411111111111111,
+              0.14285714285714285,
+              0.9555555555555556
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 74,
+            "box": [
+              0.15714285714285714,
+              0.9433333333333334,
+              0.2342857142857143,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 93,
+            "box": [
+              0.24714285714285714,
+              0.9277777777777778,
+              0.26,
+              0.9633333333333334
+            ]
+          },
+          {
+            "text": "Clainlens",
+            "confidence": 57,
+            "box": [
+              0.2714285714285714,
+              0.9411111111111111,
+              0.37,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 96,
+            "box": [
+              0.38571428571428573,
+              0.9411111111111111,
+              0.49714285714285716,
+              0.9522222222222222
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": true,
+        "date": true,
+        "currency": true,
+        "amount": true
+      }
+    },
+    {
+      "id": "09-reformatted-copy",
+      "provenance": "Same synthetic receipt, padded/resized and JPEG encoded; byte hash differs",
+      "duration_ms": 643,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:22.191Z",
+        "status": "checked",
+        "width": 858,
+        "height": 1078,
+        "metrics": {
+          "sharpness": 747.36,
+          "contrast": 26.82,
+          "clipped_white_fraction": 0.7845066189222033
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:22.834Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\nFieldnotes Cafe\n\nDate: 2026-10-12\n\nCurrency: USD\n\nSandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\nTOTAL 22.00\nReceipt fixture / Claimlens evaluation\n",
+        "confidence": 94,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 96,
+            "box": [
+              0.11072261072261072,
+              0.07328385899814471,
+              0.1993006993006993,
+              0.08348794063079777
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 96,
+            "box": [
+              0.21328671328671328,
+              0.07328385899814471,
+              0.3123543123543124,
+              0.08348794063079777
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 93,
+            "box": [
+              0.32634032634032634,
+              0.07328385899814471,
+              0.3939393939393939,
+              0.08348794063079777
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 92,
+            "box": [
+              0.4090909090909091,
+              0.07977736549165121,
+              0.41375291375291373,
+              0.08070500927643785
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 96,
+            "box": [
+              0.42773892773892774,
+              0.07328385899814471,
+              0.4568764568764569,
+              0.08348794063079777
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 96,
+            "box": [
+              0.46853146853146854,
+              0.07328385899814471,
+              0.47785547785547783,
+              0.08348794063079777
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 96,
+            "box": [
+              0.48951048951048953,
+              0.07328385899814471,
+              0.527972027972028,
+              0.08348794063079777
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 96,
+            "box": [
+              0.5407925407925408,
+              0.07328385899814471,
+              0.62004662004662,
+              0.08348794063079777
+            ]
+          },
+          {
+            "text": "Fieldnotes",
+            "confidence": 91,
+            "box": [
+              0.11305361305361306,
+              0.12894248608534323,
+              0.34965034965034963,
+              0.15398886827458255
+            ]
+          },
+          {
+            "text": "Cafe",
+            "confidence": 96,
+            "box": [
+              0.3787878787878788,
+              0.12987012987012986,
+              0.47202797202797203,
+              0.15398886827458255
+            ]
+          },
+          {
+            "text": "Date:",
+            "confidence": 96,
+            "box": [
+              0.11072261072261072,
+              0.19666048237476808,
+              0.19230769230769232,
+              0.21335807050092764
+            ]
+          },
+          {
+            "text": "2026-10-12",
+            "confidence": 94,
+            "box": [
+              0.2191142191142191,
+              0.19666048237476808,
+              0.3939393939393939,
+              0.21335807050092764
+            ]
+          },
+          {
+            "text": "Currency:",
+            "confidence": 96,
+            "box": [
+              0.11072261072261072,
+              0.24304267161410018,
+              0.26456876456876455,
+              0.26437847866419295
+            ]
+          },
+          {
+            "text": "USD",
+            "confidence": 96,
+            "box": [
+              0.2902097902097902,
+              0.24304267161410018,
+              0.3414918414918415,
+              0.2597402597402597
+            ]
+          },
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.11072261072261072,
+              0.3385899814471243,
+              0.2494172494172494,
+              0.3562152133580705
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 93,
+            "box": [
+              0.7400932400932401,
+              0.3395176252319109,
+              0.8251748251748252,
+              0.3562152133580705
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 96,
+            "box": [
+              0.11072261072261072,
+              0.39981447124304265,
+              0.21445221445221446,
+              0.4174397031539889
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 95,
+            "box": [
+              0.7389277389277389,
+              0.4007421150278293,
+              0.8076923076923077,
+              0.4174397031539889
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.11072261072261072,
+              0.5176252319109462,
+              0.2505827505827506,
+              0.5352504638218923
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 95,
+            "box": [
+              0.7389277389277389,
+              0.5185528756957328,
+              0.8251748251748252,
+              0.5352504638218923
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.11072261072261072,
+              0.5695732838589982,
+              0.16083916083916083,
+              0.5862708719851577
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.7389277389277389,
+              0.5695732838589982,
+              0.8076923076923077,
+              0.5862708719851577
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "confidence": 96,
+            "box": [
+              0.11072261072261072,
+              0.6567717996289425,
+              0.22843822843822845,
+              0.6799628942486086
+            ]
+          },
+          {
+            "text": "22.00",
+            "confidence": 96,
+            "box": [
+              0.7202797202797203,
+              0.6567717996289425,
+              0.837995337995338,
+              0.6799628942486086
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 95,
+            "box": [
+              0.11072261072261072,
+              0.9053803339517625,
+              0.17832167832167833,
+              0.9174397031539888
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 93,
+            "box": [
+              0.19230769230769232,
+              0.9072356215213359,
+              0.26107226107226106,
+              0.9155844155844156
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 93,
+            "box": [
+              0.2727272727272727,
+              0.8979591836734694,
+              0.28438228438228436,
+              0.9211502782931354
+            ]
+          },
+          {
+            "text": "Claimlens",
+            "confidence": 73,
+            "box": [
+              0.2948717948717949,
+              0.9053803339517625,
+              0.38461538461538464,
+              0.9155844155844156
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 96,
+            "box": [
+              0.3974358974358974,
+              0.9053803339517625,
+              0.4976689976689977,
+              0.9155844155844156
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": true,
+        "date": true,
+        "currency": true,
+        "amount": true
+      }
+    },
+    {
+      "id": "10-exact-copy",
+      "provenance": "Byte-for-byte copy of fixture 01",
+      "duration_ms": 571,
+      "quality": {
+        "checked_at": "2026-10-18T03:29:22.847Z",
+        "status": "checked",
+        "width": 700,
+        "height": 900,
+        "metrics": {
+          "sharpness": 1787.93,
+          "contrast": 30.68,
+          "clipped_white_fraction": 0.975047619047619
+        },
+        "issues": [],
+        "note": "Heuristic capture checks can miss defects or raise false alarms. A clean result does not prove legibility or authenticity."
+      },
+      "ocr": {
+        "checked_at": "2026-10-18T03:29:23.418Z",
+        "engine": "tesseract-eng",
+        "text": "SYNTHETIC EVALUATION FIXTURE - NOT A REAL PURCHASE\nFieldnotes Cafe\n\nDate: 2026-10-12\n\nCurrency: USD\n\nSandwich 12.00\nCoffee 8.00\nSubtotal 20.00\nTax 2.00\nTOTAL 22.00\nReceipt fixture / Clainlens evaluation\n",
+        "confidence": 92,
+        "words": [
+          {
+            "text": "SYNTHETIC",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.035555555555555556,
+              0.16428571428571428,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "EVALUATION",
+            "confidence": 93,
+            "box": [
+              0.18142857142857144,
+              0.035555555555555556,
+              0.2914285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "FIXTURE",
+            "confidence": 93,
+            "box": [
+              0.30714285714285716,
+              0.035555555555555556,
+              0.38285714285714284,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "-",
+            "confidence": 90,
+            "box": [
+              0.3985714285714286,
+              0.042222222222222223,
+              0.4042857142857143,
+              0.043333333333333335
+            ]
+          },
+          {
+            "text": "NOT",
+            "confidence": 96,
+            "box": [
+              0.42,
+              0.035555555555555556,
+              0.4514285714285714,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "A",
+            "confidence": 96,
+            "box": [
+              0.4642857142857143,
+              0.035555555555555556,
+              0.4757142857142857,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "REAL",
+            "confidence": 96,
+            "box": [
+              0.48857142857142855,
+              0.035555555555555556,
+              0.5314285714285715,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "confidence": 94,
+            "box": [
+              0.5457142857142857,
+              0.035555555555555556,
+              0.6342857142857142,
+              0.04666666666666667
+            ]
+          },
+          {
+            "text": "Fieldnotes",
+            "confidence": 92,
+            "box": [
+              0.06857142857142857,
+              0.09555555555555556,
+              0.3314285714285714,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Cafe",
+            "confidence": 96,
+            "box": [
+              0.3657142857142857,
+              0.09666666666666666,
+              0.4685714285714286,
+              0.12333333333333334
+            ]
+          },
+          {
+            "text": "Date:",
+            "confidence": 93,
+            "box": [
+              0.06571428571428571,
+              0.17,
+              0.15714285714285714,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "2026-10-12",
+            "confidence": 95,
+            "box": [
+              0.18714285714285714,
+              0.17,
+              0.38142857142857145,
+              0.18777777777777777
+            ]
+          },
+          {
+            "text": "Currency:",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.22,
+              0.23714285714285716,
+              0.24333333333333335
+            ]
+          },
+          {
+            "text": "USD",
+            "confidence": 95,
+            "box": [
+              0.26571428571428574,
+              0.22,
+              0.32285714285714284,
+              0.23777777777777778
+            ]
+          },
+          {
+            "text": "Sandwich",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.3244444444444444,
+              0.22142857142857142,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "12.00",
+            "confidence": 91,
+            "box": [
+              0.7671428571428571,
+              0.32555555555555554,
+              0.8628571428571429,
+              0.3433333333333333
+            ]
+          },
+          {
+            "text": "Coffee",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.39111111111111113,
+              0.18142857142857144,
+              0.41
+            ]
+          },
+          {
+            "text": "8.00",
+            "confidence": 94,
+            "box": [
+              0.7657142857142857,
+              0.39222222222222225,
+              0.8428571428571429,
+              0.41
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.5188888888888888,
+              0.22142857142857142,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "20.00",
+            "confidence": 93,
+            "box": [
+              0.7671428571428571,
+              0.52,
+              0.8628571428571429,
+              0.5377777777777778
+            ]
+          },
+          {
+            "text": "Tax",
+            "confidence": 95,
+            "box": [
+              0.06571428571428571,
+              0.5755555555555556,
+              0.12285714285714286,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "2.00",
+            "confidence": 95,
+            "box": [
+              0.7671428571428571,
+              0.5755555555555556,
+              0.8428571428571429,
+              0.5933333333333334
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "confidence": 96,
+            "box": [
+              0.06571428571428571,
+              0.6711111111111111,
+              0.19714285714285715,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "22.00",
+            "confidence": 96,
+            "box": [
+              0.7457142857142857,
+              0.6711111111111111,
+              0.8771428571428571,
+              0.6955555555555556
+            ]
+          },
+          {
+            "text": "Receipt",
+            "confidence": 93,
+            "box": [
+              0.06714285714285714,
+              0.9411111111111111,
+              0.14285714285714285,
+              0.9555555555555556
+            ]
+          },
+          {
+            "text": "fixture",
+            "confidence": 74,
+            "box": [
+              0.15714285714285714,
+              0.9433333333333334,
+              0.2342857142857143,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "/",
+            "confidence": 93,
+            "box": [
+              0.24714285714285714,
+              0.9277777777777778,
+              0.26,
+              0.9633333333333334
+            ]
+          },
+          {
+            "text": "Clainlens",
+            "confidence": 57,
+            "box": [
+              0.2714285714285714,
+              0.9411111111111111,
+              0.37,
+              0.9522222222222222
+            ]
+          },
+          {
+            "text": "evaluation",
+            "confidence": 96,
+            "box": [
+              0.38571428571428573,
+              0.9411111111111111,
+              0.49714285714285716,
+              0.9522222222222222
+            ]
+          }
+        ],
+        "quality_issues": [],
+        "note": "Local English printed-text OCR; boxes locate OCR words, not verified truth. Reading derivative rotation: 0 degrees; original retained. Handwriting, languages and image defects may reduce accuracy. An OCR disagreement requests review, not rejection."
+      },
+      "comparisons": {
+        "merchant": true,
+        "date": true,
+        "currency": true,
+        "amount": true
+      }
+    }
+  ]
+}

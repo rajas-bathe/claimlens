@@ -14,13 +14,16 @@
     "@google/genai": "^2.30.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
+    "@tesseract.js-data/eng": "^1.0.0",
     "clsx": "^2.1.1",
     "decimal.js": "^10.6.0",
     "lucide-react": "^1.59.0",
     "next": "16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "tailwind-merge": "^3.7.0"
+    "sharp": "^0.35.5",
+    "tailwind-merge": "^3.7.0",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

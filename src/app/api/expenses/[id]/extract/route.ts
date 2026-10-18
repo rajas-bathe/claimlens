@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/supabase/auth";
 import { createServiceClient } from "@/lib/supabase/server";
+import { checkCapture } from "@/lib/receipts/images";
 
 // POST /api/expenses/[id]/extract
 // Downloads the receipt from storage, calls Gemini, saves extraction result
@@ -28,7 +29,9 @@ export async function POST(
     }
 
     // Authorization
-    const isOwner = expense.employee_id === session.id && expense.company_id === session.membership.company_id;
+    const isOwner =
+      expense.employee_id === session.id &&
+      expense.company_id === session.membership.company_id;
     const isFinance =
       session.membership.role === "finance" &&
       expense.company_id === session.membership.company_id;
@@ -54,6 +57,16 @@ export async function POST(
         { status: 400 },
       );
     }
+
+    if (!Object.prototype.hasOwnProperty.call(expense, "capture_quality"))
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Receipt review setup is incomplete. Your administrator must apply migration 20261018000005_evidence_and_workflow.sql before extraction. The claim has not been changed.",
+        },
+        { status: 503 },
+      );
 
     // Mark as extracting
     const { data: started, error: startError } = await supabase
@@ -93,6 +106,32 @@ export async function POST(
     const arrayBuffer = await fileData.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const mimeType = expense.receipt_mime_type ?? "image/jpeg";
+    const captureQuality = await checkCapture(buffer, mimeType);
+    const { data: qualityVersion, error: qualityError } = await supabase
+      .from("expenses")
+      .update({ capture_quality: captureQuality })
+      .eq("id", id)
+      .eq("version", started.version)
+      .select("version")
+      .single();
+    if (qualityError || !qualityVersion) {
+      await markExtractionFailed(
+        supabase,
+        id,
+        started.version,
+        "Capture checks could not be saved; refresh or install the evidence-review migration.",
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Capture checks could not be saved. Refresh, or apply the evidence-review migration if needed.",
+        },
+        { status: 503 },
+      );
+    }
+    // Saving quality also advances the guarded expense version.
+    started.version = qualityVersion.version;
 
     // Call AI extraction orchestrator (Primary Gemini -> Backup Groq)
     const { extractReceiptWithFallback } = await import("@/lib/gemini/extract");
@@ -147,6 +186,18 @@ export async function POST(
       attemptLogs,
       totalDurationMs,
     } = orchestratedResult;
+    for (const kind of extraction.image_quality?.issues ?? []) {
+      if (["blur", "glare", "cutoff", "distortion", "faded"].includes(kind))
+        captureQuality.issues.push({
+          kind,
+          source: "vision_model",
+          message:
+            extraction.image_quality?.explanation ||
+            "The reader observed a possible " +
+              kind +
+              " problem. Inspect the original or provide a clearer capture.",
+        });
+    }
 
     // Compute authoritative SHA-256 hash from server buffer
     const crypto = await import("node:crypto");
@@ -155,6 +206,8 @@ export async function POST(
     // Determine which fields to denormalize
     const updateData: Record<string, unknown> = {
       processing_status: "extracted",
+      capture_quality: captureQuality,
+      ocr_evidence: null,
       receipt_file_hash: serverHash,
       extraction_raw: extraction,
       extraction_at: new Date().toISOString(),
@@ -223,6 +276,7 @@ export async function POST(
       success: true,
       data: {
         extraction,
+        capture_quality: captureQuality,
         provider,
         model,
         attempts,

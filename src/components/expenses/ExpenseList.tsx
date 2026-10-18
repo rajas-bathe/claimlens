@@ -1,7 +1,8 @@
 "use client";
 
 import type { Expense } from "@/types";
-import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { ClaimAmount } from "@/components/shared/ClaimAmount";
+import { formatDate, cn } from "@/lib/utils";
 import Link from "next/link";
 import {
   Clock,
@@ -211,10 +212,7 @@ export function ExpenseList({ expenses }: { expenses: Expense[] }) {
                   Amount
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider hidden sm:table-cell">
-                  Next Action
-                </th>
-                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider hidden lg:table-cell">
-                  Status
+                  Progress
                 </th>
                 <th className="px-4 py-3 w-8" aria-label="Actions" />
               </tr>
@@ -263,29 +261,11 @@ function ExpenseRow({ expense }: { expense: Expense }) {
         {formatDate(expense.expense_date)}
       </td>
       <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">
-        <div className="font-semibold text-gray-900">
-          {expense.original_currency
-            ? formatCurrency(expense.original_amount, expense.original_currency)
-            : "Currency needed"}
-        </div>
-        {expense.converted_currency &&
-          expense.converted_currency !== expense.original_currency && (
-            <div className="text-xs text-gray-400">
-              ≈{" "}
-              {formatCurrency(
-                expense.converted_amount,
-                expense.converted_currency,
-              )}
-            </div>
-          )}
+        <ClaimAmount expense={expense} />
       </td>
       {/* Next Action Column */}
       <td className="px-4 py-3 hidden sm:table-cell">
         {getNextActionBadge(expense.review_status)}
-      </td>
-      {/* Status Badge */}
-      <td className="px-4 py-3 text-center hidden lg:table-cell whitespace-nowrap">
-        <StatusBadge status={expense.review_status} />
       </td>
       <td className="px-4 py-3 text-right">
         <Link

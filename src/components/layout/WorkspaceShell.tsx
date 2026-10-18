@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Menu,
   X,
+  FileBarChart2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getInitials, cn } from "@/lib/utils";
@@ -38,6 +39,7 @@ const financeNav = [
     icon: FileText,
   },
   { label: "Batch import", href: "/dashboard/finance/batch", icon: Upload },
+  { label: "Reports", href: "/dashboard/reports", icon: FileBarChart2 },
 ];
 
 export function WorkspaceShell({
@@ -101,6 +103,7 @@ export function WorkspaceShell({
           icon: ReceiptText,
         },
         { label: "New expense", href: "/dashboard/expenses/new", icon: Plus },
+        { label: "Reports", href: "/dashboard/reports", icon: FileBarChart2 },
       ];
   const current = navigation.filter((n) => pathname.startsWith(n.href)).at(-1);
   const name = session.membership.display_name || session.email.split("@")[0];

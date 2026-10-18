@@ -30,6 +30,7 @@ export async function PATCH(
       );
     const action = body.review_status ? statuses[body.review_status] : "save";
     const fields = [
+      "evidence_verified",
       "merchant",
       "expense_date",
       "original_amount",
@@ -117,7 +118,9 @@ export async function GET(
       );
     }
 
-    const isOwner = expense.employee_id === session.id && expense.company_id === session.membership.company_id;
+    const isOwner =
+      expense.employee_id === session.id &&
+      expense.company_id === session.membership.company_id;
     const isFinance =
       session.membership.role === "finance" &&
       expense.company_id === session.membership.company_id;

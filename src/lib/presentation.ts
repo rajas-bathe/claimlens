@@ -1,4 +1,6 @@
 import type { Evaluation, Expense, Membership } from "@/types";
+import { inrValue } from "@/lib/currency";
+import Decimal from "decimal.js";
 
 /** Display-only helpers. These never decide eligibility or mutate claim data. */
 export function membershipLookup(members: Membership[]) {
@@ -9,14 +11,15 @@ export function currencyTotals(expenses: Expense[]) {
   const totals = new Map<string, number>();
   let missing = 0;
   for (const expense of expenses) {
-    if (expense.original_amount == null || !expense.original_currency) {
+    const value = inrValue(expense);
+    if (value === null) {
       missing++;
       continue;
     }
-    const currency = expense.original_currency.toUpperCase();
+    const currency = "INR";
     totals.set(
       currency,
-      (totals.get(currency) ?? 0) + Number(expense.original_amount),
+      new Decimal(totals.get(currency) ?? 0).plus(value).toNumber(),
     );
   }
   return {
@@ -77,6 +80,16 @@ export function hasChangedEvaluationInputs(
   expense: Expense,
 ) {
   const snapshot = evaluation.inputs_snapshot ?? {};
+  if (
+    evaluation.reimbursable_currency &&
+    evaluation.reimbursable_currency !== "INR"
+  )
+    return true;
+  if (
+    typeof snapshot.expense_version === "number" &&
+    snapshot.expense_version !== expense.version
+  )
+    return true;
   const fields = [
     "merchant",
     "expense_date",

@@ -30,9 +30,9 @@ const rule: PolicyRule = {
   id: "daily",
   type: "daily_cap",
   source_clause: "Meals",
-  supporting_text: "Office meals are capped at $25 USD per employee per day.",
+  supporting_text: "Office meals are capped at $25 INR per employee per day.",
   limit: 25,
-  limit_currency: "USD",
+  limit_currency: "INR",
   aggregation_scope: "daily",
   conditions: [],
   exceptions: [],
@@ -43,6 +43,170 @@ const rule: PolicyRule = {
   cities: null,
   trip_contexts: ["office"],
 };
+
+test('Foreign approval requires sourced INR conversion even with a finance exception',async()=>{
+  const {db,repository,add}=await setup();
+  await add(claimA,10,'draft');
+  await db.query("UPDATE expenses SET original_currency='USD',category='Ground transport' WHERE id=$1",[claimA]);
+  const submitted=await executeReview(repository,employee,claimA,{action:'submit'});
+  assert.equal(submitted.evaluation?.reimbursable_currency,'INR');
+  assert.equal(submitted.evaluation?.reimbursable_amount,null);
+  assert.ok(submitted.evaluation?.rule_results?.some(r=>r.rule_id==='reimbursement_currency_inr' && r.outcome==='unknown' && r.details.non_overridable===true));
+  await assert.rejects(()=>executeReview(repository,finance,claimA,{action:'approve',overrideReason:'Synthetic attempted exception'}),/clarification|Critical receipt evidence/);
+  const converted=await executeReview(repository,employee,claimA,{action:'submit',updates:{converted_currency:'INR',exchange_rate:85,exchange_rate_date:'2026-10-12',exchange_rate_source:'Synthetic test bank rate, not a current market quote'}});
+  assert.equal(converted.evaluation?.reimbursable_amount,850);
+  const approved=await executeReview(repository,finance,claimA,{action:'approve'});
+  assert.equal(approved.expense.review_status,'approved');
+  assert.equal(approved.evaluation?.reimbursable_currency,'INR');
+  await db.close();
+});
+
+test("Draft checks do not submit a claim, and first submission time survives a correction", async () => {
+  const { db, repository, add } = await setup();
+  await add(claimA, 10, "draft");
+  const checked = await executeReview(repository, employee, claimA, {
+    action: "evaluate",
+  });
+  assert.equal(checked.expense.review_status, "draft");
+  assert.equal(checked.expense.first_submitted_at, null);
+  const submitted = await executeReview(repository, employee, claimA, {
+    action: "submit",
+  });
+  assert.ok(submitted.expense.first_submitted_at);
+  const revised = await executeReview(repository, employee, claimA, {
+    action: "submit",
+    updates: { business_purpose: "Corrected purpose" },
+  });
+  assert.equal(
+    revised.expense.first_submitted_at,
+    submitted.expense.first_submitted_at,
+  );
+  await db.close();
+});
+
+test("Uncertain image evidence blocks approval until explicit human confirmation persists", async () => {
+  const { db, repository, add } = await setup();
+  await add();
+  const quality = {
+    checked_at: "2026-10-18T00:00:00Z",
+    status: "checked",
+    width: 100,
+    height: 100,
+    metrics: null,
+    issues: [
+      {
+        kind: "blur",
+        source: "pixel_heuristic",
+        message: "Synthetic blur signal",
+      },
+    ],
+    note: "Synthetic test",
+  };
+  await db.query("UPDATE expenses SET capture_quality=$2 WHERE id=$1", [
+    claimA,
+    JSON.stringify(quality),
+  ]);
+  await assert.rejects(
+    () =>
+      executeReview(repository, finance, claimA, {
+        action: "approve",
+        overrideReason: "Attempted exception",
+      }),
+    /Critical receipt evidence/,
+  );
+  const confirmed = await executeReview(repository, employee, claimA, {
+    action: "submit",
+    updates: { evidence_verified: true },
+  });
+  assert.equal(
+    confirmed.expense.confirmed_fields.critical_evidence?.updated_by,
+    employeeId,
+  );
+  const decision = await executeReview(repository, finance, claimA, {
+    action: "approve",
+  });
+  assert.equal(decision.expense.review_status, "approved");
+  await db.close();
+});
+
+test("Independent OCR is saved atomically with audit, rejects stale writes and invalidates confirmation", async () => {
+  const { db, repository, add } = await setup();
+  await add(claimA, 10, "draft");
+  const confirmed = await executeReview(repository, employee, claimA, {
+    action: "save",
+    updates: { evidence_verified: true },
+  });
+  const ocr = {
+    checked_at: "2026-10-18T00:00:00Z",
+    engine: "tesseract-eng",
+    confidence: 50,
+    text: "unclear",
+    words: [],
+    note: "Synthetic test",
+  };
+  const quality = {
+    checked_at: "2026-10-18T00:00:00Z",
+    status: "checked",
+    issues: [],
+    note: "Synthetic",
+  };
+  const args = [
+    claimA,
+    company,
+    employeeId,
+    confirmed.expense.version,
+    JSON.stringify(ocr),
+    JSON.stringify(quality),
+  ];
+  await db.query("SELECT claimlens_store_ocr($1,$2,$3,$4,$5,$6)", args);
+  await assert.rejects(
+    () => db.query("SELECT claimlens_store_ocr($1,$2,$3,$4,$5,$6)", args),
+    /STALE_REVIEW/,
+  );
+  const reevaluated = await executeReview(repository, employee, claimA, {
+    action: "evaluate",
+  });
+  assert.equal(reevaluated.expense.review_status, "draft");
+  assert.ok(
+    reevaluated.evaluation?.rule_results?.some(
+      (r) =>
+        r.rule_id === "critical_evidence_verification" &&
+        r.outcome === "unknown" &&
+        r.details.non_overridable === true,
+    ),
+  );
+  const events = await db.query<{ count: number }>(
+    "SELECT count(*)::int AS count FROM review_events WHERE note LIKE 'Independent OCR%'",
+  );
+  assert.equal(events.rows[0].count, 1);
+  await db.close();
+});
+
+test("Finance cannot approve their own claim, and direct authenticated financial writes are denied", async () => {
+  const { db, repository, add } = await setup();
+  await add();
+  await db.query("UPDATE expenses SET employee_id=$2 WHERE id=$1", [
+    claimA,
+    financeId,
+  ]);
+  await assert.rejects(
+    () => executeReview(repository, finance, claimA, { action: "approve" }),
+    /different finance reviewer/,
+  );
+  await db.exec("SET ROLE authenticated");
+  try {
+    await assert.rejects(
+      () =>
+        db.query("UPDATE expenses SET review_status='approved' WHERE id=$1", [
+          claimA,
+        ]),
+      /permission denied/,
+    );
+  } finally {
+    await db.exec("RESET ROLE");
+  }
+  await db.close();
+});
 let sharedDb: PGlite | null = null;
 async function getSharedDb() {
   if (!sharedDb) {
@@ -57,11 +221,22 @@ async function getSharedDb() {
       ),
       "utf8",
     );
-    await db.exec(initial.replace(/CREATE EXTENSION IF NOT EXISTS [^;]+;/g, ""));
+    await db.exec(
+      initial.replace(/CREATE EXTENSION IF NOT EXISTS [^;]+;/g, ""),
+    );
     await db.exec(
       await readFile(
         new URL(
           "../supabase/migrations/20261018000004_guarded_reviews.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    await db.exec(
+      await readFile(
+        new URL(
+          "../supabase/migrations/20261018000005_evidence_and_workflow.sql",
           import.meta.url,
         ),
         "utf8",
@@ -87,7 +262,9 @@ async function getSharedDb() {
     sharedDb = db;
   }
   // Reset role and clear mutable test tables before each test
-  await sharedDb.exec("RESET ROLE; DELETE FROM claimlens_review_commands; DELETE FROM review_events; DELETE FROM evaluations; DELETE FROM expenses;");
+  await sharedDb.exec(
+    "RESET ROLE; DELETE FROM claimlens_review_commands; DELETE FROM review_events; DELETE FROM evaluations; DELETE FROM expenses;",
+  );
   return sharedDb;
 }
 
@@ -126,7 +303,7 @@ async function setup() {
   } as unknown as SupabaseClient);
   async function add(id = claimA, amount = 10, status = "ready_for_approval") {
     await db.query(
-      "INSERT INTO expenses(id,company_id,employee_id,merchant,expense_date,original_amount,original_currency,category,trip_context,review_status,processing_status) VALUES($1,$2,$3,$4,'2026-10-12',$5,'USD','Business meals','office',$6,'extracted')",
+      "INSERT INTO expenses(id,company_id,employee_id,merchant,expense_date,original_amount,original_currency,category,trip_context,review_status,processing_status) VALUES($1,$2,$3,$4,'2026-10-12',$5,'INR','Business meals','office',$6,'extracted')",
       [id, company, employeeId, "Receipt " + id.slice(0, 2), amount, status],
     );
   }
@@ -137,18 +314,36 @@ test("A documented conversion persists through the production correction and ree
   const { db, repository, add } = await setup();
   try {
     await add(claimA, 10, "draft");
-    await db.query("UPDATE expenses SET original_currency='EUR' WHERE id=$1", [claimA]);
+    await db.query("UPDATE expenses SET original_currency='EUR' WHERE id=$1", [
+      claimA,
+    ]);
     const result = await executeReview(repository, employee, claimA, {
       action: "submit",
-      updates: { converted_currency: "USD", exchange_rate: 1.1, exchange_rate_date: "2026-10-12", exchange_rate_source: "Synthetic test treasury rate" },
+      updates: {
+        converted_currency: "INR",
+        exchange_rate: 1.1,
+        exchange_rate_date: "2026-10-12",
+        exchange_rate_source: "Synthetic test treasury rate",
+      },
     });
     assert.equal(Number(result.expense.converted_amount), 11);
-    assert.equal(result.expense.exchange_rate_source, "Synthetic test treasury rate");
+    assert.equal(
+      result.expense.exchange_rate_source,
+      "Synthetic test treasury rate",
+    );
     assert.equal(result.evaluation?.overall_outcome, "pass");
-    const stored = await db.query<{ converted_amount: string; exchange_rate_date: string }>("SELECT converted_amount,exchange_rate_date::text FROM expenses WHERE id=$1", [claimA]);
+    const stored = await db.query<{
+      converted_amount: string;
+      exchange_rate_date: string;
+    }>(
+      "SELECT converted_amount,exchange_rate_date::text FROM expenses WHERE id=$1",
+      [claimA],
+    );
     assert.equal(Number(stored.rows[0].converted_amount), 11);
     assert.equal(stored.rows[0].exchange_rate_date, "2026-10-12");
-  } finally { await db.close(); }
+  } finally {
+    await db.close();
+  }
 });
 
 test("Production individual review persists current evaluation, decision and audit together; repeat approval is idempotent", async () => {
@@ -161,7 +356,7 @@ test("Production individual review persists current evaluation, decision and aud
       requestId: "single-approve",
     });
     assert.equal(first.expense.review_status, "approved");
-    assert.equal(first.evaluation?.evaluator_version, "3.0.0");
+    assert.equal(first.evaluation?.evaluator_version, "3.1.0");
     const second = await executeReview(repository, finance, claimA, {
       action: "approve",
       expectedVersion: 1,
@@ -303,14 +498,14 @@ test("An unchanged inferred currency is not confirmed by simply submitting the f
     await db.query("UPDATE expenses SET extraction_raw=$1 WHERE id=$2", [
       JSON.stringify({
         currency_is_inferred: true,
-        normalized_currency: { value: "USD", source: "derived" },
+        normalized_currency: { value: "INR", source: "derived" },
         printed_currency: { value: "$" },
       }),
       claimA,
     ]);
     const unconfirmed = await executeReview(repository, employee, claimA, {
       action: "submit",
-      updates: { original_currency: "USD" },
+      updates: { original_currency: "INR" },
     });
     assert.equal(unconfirmed.evaluation?.overall_outcome, "unknown");
     await assert.rejects(
@@ -322,7 +517,7 @@ test("An unchanged inferred currency is not confirmed by simply submitting the f
     );
     const confirmed = await executeReview(repository, employee, claimA, {
       action: "submit",
-      updates: { original_currency: "USD", currency_confirmed: true },
+      updates: { original_currency: "INR", currency_confirmed: true },
     });
     assert.equal(confirmed.evaluation?.overall_outcome, "pass");
     assert.equal(

@@ -13,7 +13,7 @@ import type { Expense, Evaluation, Membership, RuleResult } from "../src/types";
 const expense = (overrides: Partial<Expense> = {}) =>
   ({
     original_amount: 48,
-    original_currency: "USD",
+    original_currency: "INR",
     confirmed_fields: {},
     ...overrides,
   }) as Expense;
@@ -39,7 +39,7 @@ test("Finance identity lookup uses auth user ID, not membership ID", () => {
   assert.equal(membershipLookup([member]).has("membership-1"), false);
 });
 
-test("Original currency totals stay separate and missing values are not zero", () => {
+test("INR totals exclude unconverted foreign claims and preserve missing values", () => {
   const result = currencyTotals([
     expense(),
     expense({ original_currency: "EUR", original_amount: 12 }),
@@ -47,11 +47,8 @@ test("Original currency totals stay separate and missing values are not zero", (
     expense({ original_amount: null }),
     expense({ original_amount: 0 }),
   ]);
-  assert.deepEqual(result.totals, [
-    ["EUR", 12],
-    ["USD", 48],
-  ]);
-  assert.equal(result.missing, 2);
+  assert.deepEqual(result.totals, [["INR", 48]]);
+  assert.equal(result.missing, 3);
   assert.deepEqual(currencyTotals([]), { totals: [], missing: 0 });
 });
 
@@ -123,7 +120,7 @@ test("Inferred currency stays visibly unconfirmed until a person confirms it", (
       ...inferred,
       confirmed_fields: {
         original_currency: {
-          value: "USD",
+          value: "INR",
           source: "extracted",
           updated_at: "",
           updated_by: null,
@@ -137,7 +134,7 @@ test("Inferred currency stays visibly unconfirmed until a person confirms it", (
       ...inferred,
       confirmed_fields: {
         original_currency: {
-          value: "USD",
+          value: "INR",
           source: "finance",
           updated_at: "",
           updated_by: null,

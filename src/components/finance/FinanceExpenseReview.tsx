@@ -1,4 +1,5 @@
 "use client";
+import { EVALUATOR_VERSION } from "@/lib/policy/version";
 import { ConversionResolution } from "@/components/expenses/ConversionResolution";
 import { CurrencyResolution } from "@/components/expenses/CurrencyResolution";
 
@@ -10,6 +11,7 @@ import type {
   Membership,
   PolicyVersion,
 } from "@/types";
+import { ClaimAmount } from "@/components/shared/ClaimAmount";
 import {
   formatCurrency,
   formatDate,
@@ -19,7 +21,7 @@ import {
 } from "@/lib/utils";
 import { ExtractionPanel } from "../expenses/ExtractionPanel";
 import { EvaluationPanel } from "../expenses/EvaluationPanel";
-import { ReceiptViewer } from "../shared/ReceiptViewer";
+import { ReceiptEvidence } from "@/components/receipts/ReceiptEvidence";
 import { AuditLog } from "../shared/AuditLog";
 import { useState, useTransition } from "react";
 import Link from "next/link";
@@ -37,7 +39,11 @@ import {
   Calendar,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { currencyProvenance, currencyTotals, hasChangedEvaluationInputs } from "@/lib/presentation";
+import {
+  currencyProvenance,
+  currencyTotals,
+  hasChangedEvaluationInputs,
+} from "@/lib/presentation";
 
 interface Props {
   expense: Expense;
@@ -58,7 +64,7 @@ export function FinanceExpenseReview({
   expense,
   evaluations,
   events,
-  session: _,
+  session,
   receiptUrl,
   prevId,
   nextId,
@@ -82,7 +88,7 @@ export function FinanceExpenseReview({
 
   // Determine if claim is clean or requires policy override
   const isCleanPass =
-    latestEval?.evaluator_version === "3.0.0" &&
+    latestEval?.evaluator_version === EVALUATOR_VERSION &&
     !hasChangedEvaluationInputs(latestEval, expense) &&
     latestEval?.overall_outcome === "pass" &&
     expense.review_status === "ready_for_approval" &&
@@ -272,27 +278,10 @@ export function FinanceExpenseReview({
 
           {/* Amount and Status Pill */}
           <div className="sm:text-right">
-            <div className="text-3xl font-bold tabular-nums text-gray-900">
-              {expense.original_currency
-                ? formatCurrency(
-                    expense.original_amount,
-                    expense.original_currency,
-                  )
-                : "Currency needed"}
-            </div>
+            <ClaimAmount expense={expense} />
             <p className="text-xs text-gray-500 mt-1">
               {currencyProvenance(expense)}
             </p>
-            {expense.converted_currency &&
-              expense.converted_currency !== expense.original_currency && (
-                <p className="text-xs text-gray-400 mt-0.5">
-                  ≈{" "}
-                  {formatCurrency(
-                    expense.converted_amount,
-                    expense.converted_currency,
-                  )}
-                </p>
-              )}
             <div className="mt-2">
               <span
                 className={cn(
@@ -363,10 +352,10 @@ export function FinanceExpenseReview({
       {/* Receipt Viewer Canvas */}
       <div className="review-workbench">
         <div className="review-evidence">
-          <ReceiptViewer
+          <ReceiptEvidence
+            key={expense.id + "-" + expense.version}
+            expense={expense}
             receiptUrl={receiptUrl ?? null}
-            fileName={expense.receipt_storage_path?.split("/").pop()}
-            mimeType={expense.receipt_mime_type}
           />
         </div>
         <div className="review-analysis">
@@ -391,7 +380,7 @@ export function FinanceExpenseReview({
             </div>
             <div className="text-right">
               <span className="text-xs text-gray-500">
-                Original values by currency:{" "}
+                INR value with documented conversions:{" "}
               </span>
               <strong className="text-sm tabular-nums text-gray-900 font-bold">
                 {dailyTotals.totals
@@ -551,6 +540,11 @@ export function FinanceExpenseReview({
       {/* Finance Decision & Workflow Actions Card */}
       {canAct && (
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm space-y-4">
+          {expense.employee_id === session.id && (
+            <p className="workflow-hint">
+              A different finance reviewer must approve your own claim.
+            </p>
+          )}
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <div>
               <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
@@ -572,7 +566,9 @@ export function FinanceExpenseReview({
                 type="button"
                 disabled={isPending}
                 aria-expanded={action === "approve"}
+                aria-disabled={expense.employee_id === session.id}
                 onClick={() =>
+                  expense.employee_id !== session.id &&
                   setAction(action === "approve" ? null : "approve")
                 }
                 className={cn(
@@ -590,7 +586,9 @@ export function FinanceExpenseReview({
                 type="button"
                 disabled={isPending}
                 aria-expanded={action === "override"}
+                aria-disabled={expense.employee_id === session.id}
                 onClick={() =>
+                  expense.employee_id !== session.id &&
                   setAction(action === "override" ? null : "override")
                 }
                 className={cn(

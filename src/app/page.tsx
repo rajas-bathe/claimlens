@@ -1,195 +1,204 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   ArrowUpRight,
-  ReceiptText,
-  ShieldCheck,
+  ArrowRight,
   ScanLine,
-  Check,
-  CircleCheck,
-  MoveRight,
-  Files,
+  ShieldCheck,
+  ReceiptText,
+  Fingerprint,
+  Layers3,
   Globe2,
   History,
-  MessageSquare,
-  ChevronRight,
+  Check,
+  Sparkles,
 } from "lucide-react";
 import { Brand } from "@/components/shared/Brand";
 import { CapabilityStudio } from "@/components/marketing/CapabilityStudio";
 import styles from "@/components/marketing/Marketing.module.css";
+
 export default function LandingPage() {
   return (
     <div className={styles.page}>
-      <div className={styles.ambient} aria-hidden="true">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className={styles.ambientReceipt}>
-            <ReceiptText size={100} strokeWidth={0.5} />
-          </div>
-        ))}
-      </div>
       <header className={styles.nav}>
         <Link href="/" aria-label="ClaimLens home">
-          <Brand />
+          <Brand light />
         </Link>
         <nav aria-label="Website navigation">
           <a href="#product">The product</a>
           <a href="#how-it-works">How it works</a>
-          <Link href="/login" className="button button-small">
-            Your workspace <ArrowUpRight size={15} />
+          <Link href="/login" className={styles.navCta}>
+            Open workspace <ArrowUpRight size={16} />
           </Link>
         </nav>
       </header>
       <main>
         <section className={styles.hero}>
+          <div className={styles.heroGrid} aria-hidden="true" />
+          <div className={styles.heroGlow} aria-hidden="true" />
           <div className={styles.heroCopy}>
             <p className={styles.eyebrow}>
-              <span /> EXPENSES, WITH PERSPECTIVE.
+              <span /> LESS PAPERWORK. MORE PERSPECTIVE.
             </p>
             <h1>
               <span>Every receipt.</span>
-              <span>
-                A <em>clearer</em>
-              </span>
-              <span>
-                <em>decision.</em>
-              </span>
+              <span>A clearer</span>
+              <span className={styles.gradientText}>decision.</span>
             </h1>
             <p className={styles.heroDescription}>
-              Less time piecing things together.
-              <br />A thoughtful workspace that turns scattered receipts,
-              company policy, and missing context into a clear next step.
+              Scattered receipts. Complicated policies.
+              <br />
+              One workspace that brings it all into focus.
             </p>
             <div className={styles.heroActions}>
-              <Link href="/login" className="button">
-                Find your clarity <ArrowRight size={17} />
+              <Link href="/login" className={styles.primary}>
+                Find your clarity <ArrowUpRight size={20} />
               </Link>
-              <a href="#product" className={styles.textLink}>
-                Take a closer look <ChevronRight size={15} />
+              <a href="#product" className={styles.secondary}>
+                See it in action <ArrowRight size={17} />
               </a>
             </div>
             <p className={styles.assurance}>
-              <ShieldCheck size={14} />
-              Original evidence. Explainable findings. People in control.
+              <ShieldCheck size={14} /> Original evidence. Explainable findings.
+              Your call.
             </p>
           </div>
-          <div className={styles.heroArt}>
-            <div className={styles.orbitOne} />
-            <div className={styles.orbitTwo} />
-            <span className={styles.artCaption}>FROM PAPER TO PERSPECTIVE</span>
+          <div
+            className={styles.heroArt}
+            aria-label="Illustration of a receipt becoming an explained expense decision"
+          >
+            <span className={styles.artCoordinate}>
+              INTELLIGENCE IN EVERY DETAIL / 01
+            </span>
+            <div className={styles.orbit} />
+            <div className={styles.orbitSecond} />
+            <div className={styles.receiptEcho} />
             <div className={styles.heroReceipt}>
-              <div className={styles.receiptBrand}>
-                <ReceiptText size={27} />
+              <div className={styles.receiptTop}>
+                <ScanLine size={28} />
                 <span>
                   THE ORIGINAL
                   <br />
-                  <strong>Your receipt.</strong>
+                  <b>Every detail matters.</b>
                 </span>
+                <span className={styles.receiptNumber}>001</span>
               </div>
-              <div className={styles.dottedLine} />
-              <div className={styles.receiptSkeleton} />
-              <div className={styles.receiptSkeletonShort} />
-              <div className={styles.dottedLine} />
-              <div className={styles.heroEvidence}>
-                <span>Merchant & date</span>
-                <Check size={13} />
-              </div>
-              <div className={styles.heroEvidence}>
-                <span>Amounts & items</span>
-                <Check size={13} />
-              </div>
-              <div className={styles.heroEvidence}>
-                <span>Business context</span>
-                <Check size={13} />
-              </div>
-              <div className={styles.dottedLine} />
-              <span className={styles.receiptSignature}>
-                A little detail.
+              <div className={styles.receiptMerchant}>
+                FIELDNOTES
                 <br />
-                <em>A lot of clarity.</em>
-              </span>
-              <span className={styles.heroScan} />
+                CAFÉ<span>ILLUSTRATIVE RECEIPT · INR</span>
+              </div>
+              <div className={styles.receiptLine}>
+                <span>Working lunch</span>
+                <b>400.00</b>
+              </div>
+              <div className={styles.receiptLine}>
+                <span>Tax</span>
+                <b>40.00</b>
+              </div>
+              <div className={styles.receiptLine}>
+                <span>Tip</span>
+                <b>40.00</b>
+              </div>
+              <div className={styles.receiptTotal}>
+                <span>TOTAL</span>
+                <strong>₹480.00</strong>
+              </div>
+              <div className={styles.barcode} />
+              <div className={styles.scanBeam} />
             </div>
-            <div className={styles.policyFloat}>
+            <div className={styles.signalCard}>
+              <span className={styles.signalIcon}>
+                <Sparkles size={18} />
+              </span>
+              <div>
+                <small>POLICY CONTEXT, CONNECTED</small>
+                <strong>A finding you can follow.</strong>
+              </div>
+              <ArrowUpRight size={18} />
+            </div>
+            <div className={styles.checkChip}>
               <span>
-                <ShieldCheck size={18} />
-              </span>
-              <div>
-                <small>THE RIGHT CONTEXT</small>
-                <strong>Your policy, considered.</strong>
-              </div>
+                <Check size={13} />
+              </span>{" "}
+              Evidence stays in view.
             </div>
-            <div className={styles.decisionFloat}>
-              <CircleCheck size={20} />
-              <div>
-                <small>THE NEXT STEP</small>
-                <strong>A decision you can explain.</strong>
-              </div>
-            </div>
-            <div className={styles.artFooter}>
-              <span>CAPTURE</span>
-              <MoveRight size={14} />
-              <span>UNDERSTAND</span>
-              <MoveRight size={14} />
-              <span>DECIDE</span>
-            </div>
+            <span className={styles.artFooter}>
+              CAPTURE <i /> CONTEXT <i /> CLARITY
+            </span>
+            <ReceiptText
+              className={styles.ambientReceiptOne}
+              size={75}
+              strokeWidth={0.6}
+            />
+            <ReceiptText
+              className={styles.ambientReceiptTwo}
+              size={50}
+              strokeWidth={0.6}
+            />
+          </div>
+          <div className={styles.heroBottom}>
+            <span>
+              <i /> BUILT FOR THE DETAILS THAT MATTER
+            </span>
+            <a href="#product">
+              Explore the workspace <span>↓</span>
+            </a>
           </div>
         </section>
-        <div className={styles.productPrinciples}>
-          <span>Built around the work that matters.</span>
-          <div>
-            <ScanLine size={15} />
-            Faithful capture
-          </div>
-          <div>
-            <ShieldCheck size={15} />
-            Policy in context
-          </div>
-          <div>
-            <History size={15} />A traceable decision
-          </div>
+        <div className={styles.trustStrip}>
+          <span>
+            <ScanLine size={16} /> CAPTURE THE EVIDENCE
+          </span>
+          <i />
+          <span>
+            <Layers3 size={16} /> CONNECT THE POLICY
+          </span>
+          <i />
+          <span>
+            <Fingerprint size={16} /> KEEP THE HUMAN IN CONTROL
+          </span>
         </div>
         <CapabilityStudio />
         <section id="how-it-works" className={styles.processSection}>
           <div className={styles.sectionIntro}>
             <div>
-              <p className={styles.kicker}>A BETTER WAY THROUGH</p>
+              <p className={styles.eyebrow}>LESS FRICTION. MORE FORWARD.</p>
               <h2>
-                Less back and forth.
+                From pocket.
                 <br />
-                <em>More moving forward.</em>
+                To <span className={styles.gradientText}>perspective.</span>
               </h2>
             </div>
             <p>
-              For the people submitting expenses.
+              Your receipts have a story.
               <br />
-              And the people making sense of them.
+              Get to the part that matters.
             </p>
           </div>
           <div className={styles.processGrid}>
             {[
               {
-                number: "01",
                 icon: ReceiptText,
-                title: "Start with the receipt.",
-                text: "Upload an image or PDF. Review the extracted details and add the context only you know.",
+                title: "Drop it in.",
+                text: "Upload one receipt or bring a batch together. Keep the original evidence close.",
               },
               {
-                number: "02",
+                icon: Layers3,
+                title: "Connect the dots.",
+                text: "Read the details alongside company policy, earlier claims and the context that matters.",
+              },
+              {
                 icon: ShieldCheck,
-                title: "Put it in perspective.",
-                text: "See the relevant company rules, contributing receipts, and anything that still needs a closer look.",
+                title: "Move it forward.",
+                text: "Resolve what's missing. Review the findings. Record a decision with a clear trail.",
               },
-              {
-                number: "03",
-                icon: CircleCheck,
-                title: "Make the next move.",
-                text: "Answer a question, review an exception, or record a permitted decision with a clear reason.",
-              },
-            ].map(({ number, icon: Icon, title, text }) => (
-              <article key={number} className={styles.processCard}>
+            ].map(({ icon: Icon, title, text }, i) => (
+              <article key={title}>
                 <div>
-                  <span>{number}</span>
-                  <Icon size={24} strokeWidth={1.4} />
+                  <span className={styles.processIcon}>
+                    <Icon size={23} strokeWidth={1.5} />
+                  </span>
+                  <span className={styles.processNumber}>0{i + 1}</span>
                 </div>
                 <h3>{title}</h3>
                 <p>{text}</p>
@@ -197,75 +206,68 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
-        <section className={styles.capabilities}>
+        <section className={styles.capabilitiesSection}>
           <div className={styles.sectionIntro}>
             <div>
-              <p className={styles.kicker}>THE DETAILS MAKE THE DIFFERENCE</p>
+              <p className={styles.eyebrow}>BUILT FOR REAL-WORLD RECEIPTS</p>
               <h2>
-                Thoughtful at
+                Messy inputs.
                 <br />
-                <em>every step.</em>
+                <span className={styles.gradientText}>Clear next steps.</span>
               </h2>
             </div>
             <p>
-              Useful clarity, especially
+              Good decisions need more than a total.
               <br />
-              when the evidence isn’t perfect.
+              They need the whole picture.
             </p>
           </div>
           <div className={styles.capabilityGrid}>
             {[
               {
-                icon: Files,
-                label: "Look twice. Submit once.",
-                text: "Exact-file and probable-duplicate findings bring related receipts into view for human review.",
+                icon: Fingerprint,
+                label: "Spot the overlap.",
+                text: "Exact and probable duplicate matches bring related receipts into the review.",
               },
               {
                 icon: Globe2,
-                label: "Keep currencies in context.",
-                text: "Original amounts stay visible. Comparisons need compatible currencies and documented conversion evidence.",
-              },
-              {
-                icon: MessageSquare,
-                label: "Make uncertainty useful.",
-                text: "Missing dates, unclear amounts, and unresolved policy details have a visible next step.",
+                label: "Keep currencies honest.",
+                text: "Separate monetary values. Make uncertainty and conversion provenance visible.",
               },
               {
                 icon: History,
-                label: "Keep the story together.",
-                text: "Original evidence, employee corrections, policy findings, and review decisions stay connected.",
+                label: "Keep the story intact.",
+                text: "Original evidence, employee corrections and finance decisions stay connected.",
               },
             ].map(({ icon: Icon, label, text }) => (
               <article key={label}>
-                <span className={styles.capabilityIcon}>
-                  <Icon size={20} strokeWidth={1.6} />
-                </span>
+                <Icon size={24} strokeWidth={1.5} />
                 <h3>{label}</h3>
                 <p>{text}</p>
+                <span className={styles.cardCorner}>↗</span>
               </article>
             ))}
           </div>
         </section>
         <section className={styles.cta}>
-          <div className={styles.ctaRings} aria-hidden="true" />
-          <div>
-            <p className={styles.kicker}>YOUR NEXT EXPENSE, SIMPLIFIED</p>
-            <h2>
-              Good decisions start
-              <br />
-              with a <em>clearer view.</em>
-            </h2>
-          </div>
-          <Link href="/login" className="button button-light">
-            Step into your workspace <ArrowUpRight size={17} />
+          <div className={styles.ctaGlow} aria-hidden="true" />
+          <p className={styles.eyebrow}>YOUR NEXT EXPENSE, SIMPLIFIED.</p>
+          <h2>
+            Less chasing.
+            <br />
+            <span className={styles.gradientText}>More clarity.</span>
+          </h2>
+          <Link href="/login" className={styles.primary}>
+            Step into your workspace <ArrowUpRight size={19} />
           </Link>
+          <p>Every expense. A clearer picture.</p>
         </section>
       </main>
       <footer className={styles.footer}>
-        <Brand />
-        <span>Every expense. A clearer picture.</span>
+        <Brand light />
+        <span>Evidence first. People in control.</span>
         <Link href="/login">
-          Your workspace <ArrowUpRight size={13} />
+          Your workspace <ArrowUpRight size={14} />
         </Link>
       </footer>
     </div>

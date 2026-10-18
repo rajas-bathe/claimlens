@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["tesseract.js", "@tesseract.js-data/eng", "sharp"],
+  outputFileTracingIncludes: {
+    "/api/expenses/*/ocr": [
+      "./node_modules/tesseract.js/src/**/*",
+      "./node_modules/tesseract.js-core/**/*",
+      "./node_modules/@tesseract.js-data/eng/**/*",
+    ],
+  },
   devIndicators: false,
   turbopack: {
     rules: {

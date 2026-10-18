@@ -76,7 +76,7 @@ export function CurrencyResolution({ expense }: { expense: Expense }) {
               required
               pattern="[A-Z]{3}"
               maxLength={3}
-              placeholder="e.g. USD"
+              placeholder="e.g. INR"
               value={currency}
               onChange={(e) => {
                 setCurrency(e.target.value.toUpperCase());

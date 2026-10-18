@@ -12,6 +12,7 @@ import type {
 } from "@/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { currencyTotals, membershipLookup } from "@/lib/presentation";
+import { ClaimAmount } from "@/components/shared/ClaimAmount";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -20,6 +21,7 @@ import {
   MessageCircle,
   ReceiptText,
   ShieldCheck,
+  FileBarChart2,
 } from "lucide-react";
 
 interface Props {
@@ -47,7 +49,7 @@ function Totals({ expenses }: { expenses: Expense[] }) {
       {missing > 0 && (
         <p className="metric-note">
           {missing} {missing === 1 ? "claim has" : "claims have"} an unresolved
-          amount or currency
+          INR value or conversion
         </p>
       )}
     </>
@@ -144,20 +146,25 @@ export function FinanceOverviewDashboard({
             {session.company.name} · {filtered.length} claims in this view
           </p>
         </div>
-        <div className="range-controls" aria-label="Submission date range">
-          {(["all", "30d", "7d"] as const).map((r) => (
-            <button
-              key={r}
-              aria-pressed={range === r}
-              onClick={() => setRange(r)}
-            >
-              {r === "all"
-                ? "All time"
-                : r === "30d"
-                  ? "Last 30 days"
-                  : "Last 7 days"}
-            </button>
-          ))}
+        <div className="overview-actions">
+          <Link href="/dashboard/reports" className="button button-secondary">
+            <FileBarChart2 size={15} /> Generate report
+          </Link>
+          <div className="range-controls" aria-label="Submission date range">
+            {(["all", "30d", "7d"] as const).map((r) => (
+              <button
+                key={r}
+                aria-pressed={range === r}
+                onClick={() => setRange(r)}
+              >
+                {r === "all"
+                  ? "All time"
+                  : r === "30d"
+                    ? "Last 30 days"
+                    : "Last 7 days"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <div className="metric-grid" aria-live="polite">
@@ -265,7 +272,7 @@ export function FinanceOverviewDashboard({
           )}
           <div className="mt-5 pt-4 border-t border-gray-100">
             <p className="metric-note mb-2">
-              Original claim value · currencies shown separately
+              Claim value in INR · documented conversions only
             </p>
             <Totals expenses={filtered} />
           </div>
@@ -277,17 +284,21 @@ export function FinanceOverviewDashboard({
               <p>Every claim in this date range, by current status.</p>
             </div>
           </div>
-          {statuses.map(({ status, label, color }) => (
-            <div className="status-row" key={status}>
-              <span>
-                <i className="status-dot" style={{ background: color }} />
-                {label}
-              </span>
-              <strong>
-                {filtered.filter((e) => e.review_status === status).length}
-              </strong>
-            </div>
-          ))}
+          {statuses
+            .filter(({ status }) =>
+              filtered.some((e) => e.review_status === status),
+            )
+            .map(({ status, label, color }) => (
+              <div className="status-row" key={status}>
+                <span>
+                  <i className="status-dot" style={{ background: color }} />
+                  {label}
+                </span>
+                <strong>
+                  {filtered.filter((e) => e.review_status === status).length}
+                </strong>
+              </div>
+            ))}
           <div className="policy-summary">
             {active ? (
               <>
@@ -341,9 +352,7 @@ export function FinanceOverviewDashboard({
                     aria-label={"Review " + (e.merchant || "expense")}
                   >
                     <span className="whitespace-nowrap">
-                      {e.original_currency
-                        ? formatCurrency(e.original_amount, e.original_currency)
-                        : "Currency needed"}
+                      <ClaimAmount expense={e} />
                     </span>
                     <ArrowUpRight size={15} />
                   </Link>

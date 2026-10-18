@@ -1,4 +1,6 @@
 import Decimal from "decimal.js";
+import { inrValue, BASE_CURRENCY } from "@/lib/currency";
+import { evidenceSnapshot } from "@/lib/receipts/verification";
 import { randomUUID } from "node:crypto";
 import type {
   Expense,
@@ -11,12 +13,7 @@ import { evaluateExpensePolicy, EVALUATOR_VERSION } from "@/lib/policy/engine";
 import { selectPolicyForDate } from "@/lib/policy/selection";
 import type { SupabaseClient } from "@supabase/supabase-js";
 export type ReviewAction =
-  | "save"
-  | "submit"
-  | "evaluate"
-  | "approve"
-  | "reject"
-  | "request";
+  "save" | "submit" | "evaluate" | "approve" | "reject" | "request";
 export interface ReviewContext {
   revision: number;
   expense: Expense;
@@ -61,6 +58,7 @@ export class ReviewError extends Error {
   }
 }
 const FIELDS = new Set([
+  "evidence_verified",
   "merchant",
   "expense_date",
   "original_amount",
@@ -86,6 +84,16 @@ export function assertAuthorized(
   action: ReviewAction,
 ) {
   if (
+    action === "approve" &&
+    session.membership.role === "finance" &&
+    expense.employee_id === session.id
+  )
+    throw new ReviewError(
+      "SELF_APPROVAL",
+      "A different finance reviewer must decide your own claim.",
+      403,
+    );
+  if (
     session.company.id !== expense.company_id ||
     session.membership.company_id !== expense.company_id ||
     (session.membership.role !== "finance" &&
@@ -104,6 +112,27 @@ export function correctedExpense(
   updates: Record<string, unknown>,
   session: UserSession,
 ): Expense {
+  const originalChanged =
+    ("original_currency" in updates &&
+      updates.original_currency !== expense.original_currency) ||
+    ("original_amount" in updates &&
+      updates.original_amount !== expense.original_amount);
+  const clearsConversion =
+    originalChanged &&
+    ![
+      "converted_currency",
+      "exchange_rate",
+      "exchange_rate_date",
+      "exchange_rate_source",
+    ].some((key) => key in updates);
+  if (clearsConversion)
+    Object.assign(updates, {
+      converted_currency: null,
+      converted_amount: null,
+      exchange_rate: null,
+      exchange_rate_date: null,
+      exchange_rate_source: null,
+    });
   const confirmed: ConfirmedFields = { ...expense.confirmed_fields };
   for (const [key, value] of Object.entries(updates)) {
     if (!FIELDS.has(key))
@@ -111,7 +140,7 @@ export function correctedExpense(
         "INVALID_FIELDS",
         "An unsupported expense field was submitted.",
       );
-    if (key === "currency_confirmed") {
+    if (key === "currency_confirmed" || key === "evidence_verified") {
       if (typeof value !== "boolean")
         throw new ReviewError(
           "INVALID_CONFIRMATION",
@@ -196,7 +225,15 @@ export function correctedExpense(
     ...updates,
     confirmed_fields: confirmed,
   } as Expense;
+  if (updates.evidence_verified === true)
+    revised.confirmed_fields.critical_evidence = {
+      value: evidenceSnapshot(revised),
+      source: session.membership.role === "finance" ? "finance" : "employee",
+      updated_by: session.id,
+      updated_at: new Date().toISOString(),
+    };
   if (
+    !clearsConversion &&
     [
       "converted_currency",
       "exchange_rate",
@@ -211,11 +248,11 @@ export function correctedExpense(
       revised.exchange_rate <= 0 ||
       !revised.exchange_rate_source?.trim() ||
       !/^\d{4}-\d{2}-\d{2}$/.test(revised.exchange_rate_date ?? "") ||
-      !/^[A-Z]{3}$/.test(revised.converted_currency ?? "")
+      revised.converted_currency !== BASE_CURRENCY
     )
       throw new ReviewError(
         "INVALID_CONVERSION",
-        "Provide a positive rate, target ISO currency, rate date and a verifiable source.",
+        "Provide a positive conversion rate to INR, a valid rate date and a verifiable source.",
       );
     revised.converted_amount = new Decimal(revised.original_amount)
       .times(revised.exchange_rate)
@@ -237,11 +274,49 @@ export function evaluationRecord(
     spendingHistory: context.history,
     candidateDuplicates: context.history,
   });
+  const inr = inrValue(expense);
+  result.rule_results.push({
+    rule_id: "reimbursement_currency_inr",
+    rule_type: "currency_restriction",
+    source_clause: "Workspace reimbursement currency",
+    outcome: inr === null ? "unknown" : "pass",
+    message:
+      inr === null
+        ? "INR reimbursement requires a confirmed original currency and a dated, sourced conversion to INR."
+        : "INR reimbursement value is supported by the receipt or documented conversion.",
+    details: {
+      comparison_currency: BASE_CURRENCY,
+      non_overridable: inr === null,
+      original_currency: expense.original_currency,
+      exchange_rate: expense.exchange_rate,
+      exchange_rate_date: expense.exchange_rate_date,
+      exchange_rate_source: expense.exchange_rate_source,
+    },
+    required_action:
+      inr === null
+        ? "Confirm the receipt currency and add INR conversion evidence"
+        : "None",
+    reimbursable_impact: null,
+  });
+  if (inr === null) {
+    result.overall_outcome =
+      result.overall_outcome === "fail" ? "fail" : "unknown";
+    result.reimbursable_amount = null;
+  } else if (
+    result.reimbursable_amount !== null &&
+    expense.original_currency !== BASE_CURRENCY
+  )
+    result.reimbursable_amount = new Decimal(result.reimbursable_amount)
+      .times(expense.exchange_rate!)
+      .toDecimalPlaces(2)
+      .toNumber();
+  result.reimbursable_currency = BASE_CURRENCY;
   return {
     ...result,
     policy_version_id: policy?.id ?? null,
     evaluator_version: EVALUATOR_VERSION,
     inputs_snapshot: {
+      reimbursement_currency: BASE_CURRENCY,
       merchant: expense.merchant,
       expense_date: expense.expense_date,
       original_amount: expense.original_amount,
@@ -336,6 +411,12 @@ export async function executeReview(
       command.action = "submit";
     const revised = correctedExpense(expense, command.updates, session);
     if (
+      command.action === "submit" &&
+      expense.review_status === "draft" &&
+      !revised.first_submitted_at
+    )
+      revised.first_submitted_at = new Date().toISOString();
+    if (
       [
         "converted_currency",
         "exchange_rate",
@@ -365,7 +446,7 @@ export async function executeReview(
       )
         throw new ReviewError(
           "FINANCIAL_EVIDENCE_UNRESOLVED",
-          "Amount, currency or conversion evidence is unresolved. Confirm it before approval.",
+          "Critical receipt evidence is unresolved. Compare and confirm it before approval.",
         );
       if (
         evaluation!.overall_outcome !== "pass" &&
@@ -449,6 +530,7 @@ export function supabaseReviewRepository(
 ): ReviewRepository {
   const translate = (message: string) => {
     const code = [
+      "SELF_APPROVAL",
       "FORBIDDEN",
       "STALE_REVIEW",
       "DECISION_ALREADY_RECORDED",
@@ -487,6 +569,14 @@ export function supabaseReviewRepository(
       if (error) throw translate(error.message);
       if (!data?.expense)
         throw new ReviewError("NOT_FOUND", "Expense not found.", 404);
+      if (
+        !Object.prototype.hasOwnProperty.call(data.expense, "capture_quality")
+      )
+        throw new ReviewError(
+          "MIGRATION_REQUIRED",
+          "Receipt review setup is incomplete. Your administrator must apply migration 20261018000005_evidence_and_workflow.sql before claims can be updated or decided.",
+          503,
+        );
       return data as ReviewContext;
     },
     async commit({ session, context, command, evaluation }) {

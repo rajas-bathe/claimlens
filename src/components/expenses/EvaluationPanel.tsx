@@ -1,4 +1,5 @@
 "use client";
+import { EVALUATOR_VERSION } from "@/lib/policy/version";
 
 import type { Evaluation, Expense, RuleResult } from "@/types";
 import { formatDateTime, formatCurrency, cn } from "@/lib/utils";
@@ -189,7 +190,7 @@ export function EvaluationPanel({
         )}
       </div>
       <div className="p-5">
-        {evaluation && evaluation.evaluator_version !== "3.0.0" && (
+        {evaluation && evaluation.evaluator_version !== EVALUATOR_VERSION && (
           <p className="workflow-hint mb-4">
             These findings were recorded before the current financial
             safeguards. Run policy checks again before making a new decision.
@@ -253,7 +254,7 @@ export function EvaluationPanel({
               <strong>{summary!.label}</strong>
               <p>
                 {evaluation.reimbursable_amount !== null &&
-                evaluation.reimbursable_currency
+                evaluation.reimbursable_currency === "INR"
                   ? "Calculated reimbursable: " +
                     formatCurrency(
                       evaluation.reimbursable_amount,
@@ -261,7 +262,7 @@ export function EvaluationPanel({
                     ) +
                     " " +
                     evaluation.reimbursable_currency
-                  : "Reimbursement amount or currency remains unresolved."}
+                  : "INR reimbursement is unresolved. Run current checks and record conversion evidence when required."}
               </p>
             </div>
             {attention.map((r, i) => (

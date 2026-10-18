@@ -10,15 +10,18 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { OcrWord } from "@/types";
 
 export function ReceiptViewer({
   receiptUrl,
   mimeType,
   fileName,
+  highlights = [],
 }: {
   receiptUrl: string | null;
   mimeType?: string | null;
   fileName?: string;
+  highlights?: OcrWord[];
 }) {
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -215,28 +218,38 @@ export function ReceiptViewer({
             </a>
           </div>
         ) : (
-          <img
-            src={receiptUrl}
-            alt="Original receipt evidence"
-            draggable={false}
-            onError={() => setImageError(true)}
+          <div
+            className="receipt-image-stage"
             style={{
-              transform:
-                "translate(" +
-                offset.x +
-                "px," +
-                offset.y +
-                "px) scale(" +
-                zoom +
-                ") rotate(" +
-                rotation +
-                "deg)",
-              transition: dragging ? "none" : "transform .15s ease-out",
-              maxHeight: "100%",
-              maxWidth: "100%",
-              objectFit: "contain",
+              transform: `translate(${offset.x}px,${offset.y}px) scale(${zoom}) rotate(${rotation}deg)`,
             }}
-          />
+          >
+            <img
+              src={receiptUrl}
+              alt="Original receipt evidence"
+              draggable={false}
+              onError={() => setImageError(true)}
+              style={{
+                transition: dragging ? "none" : "transform .15s ease-out",
+                maxHeight: "100%",
+                maxWidth: "100%",
+                objectFit: "contain",
+              }}
+            />
+            {highlights.map((word, index) => (
+              <span
+                key={index}
+                className="ocr-word-box"
+                title={"OCR: " + word.text}
+                style={{
+                  left: word.box[0] * 100 + "%",
+                  top: word.box[1] * 100 + "%",
+                  width: (word.box[2] - word.box[0]) * 100 + "%",
+                  height: (word.box[3] - word.box[1]) * 100 + "%",
+                }}
+              />
+            ))}
+          </div>
         )}
       </div>
       <p className="receipt-help">

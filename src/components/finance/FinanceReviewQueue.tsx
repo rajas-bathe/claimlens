@@ -1,7 +1,9 @@
 "use client";
+import { EVALUATOR_VERSION } from "@/lib/policy/version";
 
 import type { Expense, Evaluation, Membership, UserSession } from "@/types";
-import { formatCurrency, formatDate, getInitials, cn } from "@/lib/utils";
+import { ClaimAmount } from "@/components/shared/ClaimAmount";
+import { formatDate, getInitials, cn } from "@/lib/utils";
 import Link from "next/link";
 import { membershipLookup, thresholdFinding } from "@/lib/presentation";
 import { useState, useTransition, useMemo } from "react";
@@ -127,7 +129,8 @@ export function FinanceReviewQueue({
 
     if (
       expense.review_status === "ready_for_approval" &&
-      ev?.evaluator_version === "3.0.0"
+      ev?.evaluator_version === EVALUATOR_VERSION &&
+      ev?.inputs_snapshot?.reimbursement_currency === "INR"
     ) {
       return {
         text: "Ready for finance approval",
@@ -161,7 +164,10 @@ export function FinanceReviewQueue({
       };
     }
 
-    if (ev.evaluator_version !== "3.0.0")
+    if (
+      ev.evaluator_version !== EVALUATOR_VERSION ||
+      ev.inputs_snapshot?.reimbursement_currency !== "INR"
+    )
       return {
         text: "Run current policy checks",
         style: "text-amber-700",
@@ -727,25 +733,7 @@ export function FinanceReviewQueue({
 
                       {/* Amount */}
                       <td className="px-3.5 py-3 text-right tabular-nums whitespace-nowrap">
-                        <div className="font-semibold text-gray-900">
-                          {expense.original_currency
-                            ? formatCurrency(
-                                expense.original_amount,
-                                expense.original_currency,
-                              )
-                            : "Currency needed"}
-                        </div>
-                        {expense.converted_currency &&
-                          expense.converted_currency !==
-                            expense.original_currency && (
-                            <div className="text-[11px] text-gray-400">
-                              ≈{" "}
-                              {formatCurrency(
-                                expense.converted_amount,
-                                expense.converted_currency,
-                              )}
-                            </div>
-                          )}
+                        <ClaimAmount expense={expense} />
                       </td>
 
                       {/* Short Next step / finding */}

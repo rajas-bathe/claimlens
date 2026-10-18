@@ -9,10 +9,11 @@ import type {
   UserSession,
   TripContext,
 } from "@/types";
+import { ClaimAmount } from "@/components/shared/ClaimAmount";
 import { formatCurrency, formatDate, snakeToTitle, cn } from "@/lib/utils";
 import { ExtractionPanel } from "./ExtractionPanel";
 import { EvaluationPanel } from "./EvaluationPanel";
-import { ReceiptViewer } from "../shared/ReceiptViewer";
+import { ReceiptEvidence } from "@/components/receipts/ReceiptEvidence";
 import { AuditLog } from "../shared/AuditLog";
 import Link from "next/link";
 import { useState, useTransition } from "react";
@@ -182,27 +183,10 @@ export function ExpenseDetail({
           </div>
 
           <div className="sm:text-right">
-            <p className="text-3xl font-bold tabular-nums text-gray-900">
-              {expense.original_currency
-                ? formatCurrency(
-                    expense.original_amount,
-                    expense.original_currency,
-                  )
-                : "Currency needed"}
-            </p>
+            <ClaimAmount expense={expense} />
             <p className="text-xs text-gray-500 mt-1">
               {currencyProvenance(expense)}
             </p>
-            {expense.converted_currency &&
-              expense.converted_currency !== expense.original_currency && (
-                <p className="text-xs text-gray-400 mt-0.5">
-                  ≈{" "}
-                  {formatCurrency(
-                    expense.converted_amount,
-                    expense.converted_currency,
-                  )}
-                </p>
-              )}
             <div className="mt-2">
               <span
                 className={cn(
@@ -490,10 +474,10 @@ export function ExpenseDetail({
       {/* Interactive Receipt Viewer */}
       <div className="review-workbench">
         <div className="review-evidence">
-          <ReceiptViewer
+          <ReceiptEvidence
+            key={expense.id + "-" + expense.version}
+            expense={expense}
             receiptUrl={receiptUrl ?? null}
-            fileName={expense.receipt_storage_path?.split("/").pop()}
-            mimeType={expense.receipt_mime_type}
           />
         </div>
 
