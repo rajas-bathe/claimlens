@@ -8,7 +8,6 @@ import {
   FileText,
   Loader2,
   Upload,
-  AlertTriangle,
   ShieldCheck,
 } from "lucide-react";
 
@@ -187,18 +186,13 @@ export function PolicyWorkspace({
 
             {activeVersion.unsupported_clauses &&
               activeVersion.unsupported_clauses.length > 0 && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-md">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
-                    <p className="text-sm font-medium text-amber-800">
-                      Unsupported Clauses (
-                      {activeVersion.unsupported_clauses.length})
+                <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-lg">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="w-4 h-4 text-amber-700" />
+                    <p className="text-sm font-semibold text-amber-900">
+                      Reviewer Guidelines ({activeVersion.unsupported_clauses.length})
                     </p>
                   </div>
-                  <p className="text-xs text-amber-700 mb-2">
-                    These clauses need a person’s judgment. They are not covered
-                    by automatic policy checks.
-                  </p>
                   <div className="space-y-2">
                     {activeVersion.unsupported_clauses.map((clause, idx) => (
                       <div
@@ -412,7 +406,7 @@ function UploadPolicyForm({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Structuring failed");
         setResult(
-          `Policy Version ${nextVersion} proposed with ${data.data.rule_count} structured rules and ${data.data.unsupported_count} unsupported clause(s). Review and confirm to activate.`,
+          `Policy Version ${nextVersion} proposed with ${data.data.rule_count} structured rules and ${data.data.unsupported_count} reviewer guideline(s). Review and confirm to activate.`,
         );
         // Preserve the source text until the reviewer deliberately replaces it.
         window.location.reload();
