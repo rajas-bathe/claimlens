@@ -442,8 +442,8 @@ export function FinanceExpenseReview({
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums font-medium">
                       {formatCurrency(
-                        sde.original_amount,
-                        sde.original_currency,
+                        sde.converted_amount ?? sde.original_amount,
+                        "INR",
                       )}
                     </td>
                   </tr>
@@ -488,8 +488,8 @@ export function FinanceExpenseReview({
                       <span className="text-gray-400">·</span>
                       <span className="tabular-nums font-bold">
                         {formatCurrency(
-                          dup.original_amount,
-                          dup.original_currency,
+                          dup.converted_amount ?? dup.original_amount,
+                          "INR",
                         )}
                       </span>
                       {isExact && (

@@ -6,13 +6,8 @@ import { cn, formatCurrency } from "@/lib/utils";
 
 export function ExtractionPanel({ expense }: { expense: Expense }) {
   const ext = expense.extraction_raw;
-  const evidenceCurrency = ext?.normalized_currency?.value;
   const money = (amount: number | null | undefined) =>
-    amount == null
-      ? "—"
-      : evidenceCurrency
-        ? formatCurrency(Number(amount), evidenceCurrency)
-        : Number(amount).toFixed(2) + " (currency unresolved)";
+    amount == null ? "—" : formatCurrency(Number(amount), "INR");
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
@@ -74,16 +69,8 @@ export function ExtractionPanel({ expense }: { expense: Expense }) {
                 <p className="text-gray-400">Currency</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="font-semibold text-gray-900 text-sm">
-                    {ext.normalized_currency?.value ??
-                      ext.printed_currency?.value ??
-                      "Not available"}
+                    INR (₹)
                   </span>
-                  {ext.currency_is_inferred && (
-                    <span className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 rounded px-1.5 py-0.5 font-medium">
-                      Inferred from &apos;{ext.printed_currency?.value ?? "$"}
-                      &apos;
-                    </span>
-                  )}
                 </div>
               </div>
 

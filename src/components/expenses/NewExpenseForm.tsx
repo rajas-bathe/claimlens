@@ -130,9 +130,9 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
   const [merchant, setMerchant] = useState("");
   const [expenseDate, setExpenseDate] = useState("");
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState("");
+  const [currency, setCurrency] = useState("INR");
   const [currencyInferred, setCurrencyInferred] = useState(false);
-  const [currencyVerified, setCurrencyVerified] = useState(false);
+  const [currencyVerified, setCurrencyVerified] = useState(true);
   const [category, setCategory] = useState("");
   const [city, setCity] = useState("");
   const [tripContext, setTripContext] = useState<TripContext>("office");
@@ -274,20 +274,14 @@ export function NewExpenseForm({ session }: { session: UserSession }) {
       if (extractData.data?.capture_quality)
         setQuality(extractData.data.capture_quality);
       if (ext) {
-        setCurrencyInferred(
-          Boolean(
-            ext.currency_is_inferred ||
-            ext.normalized_currency?.source === "derived",
-          ),
-        );
-        setCurrencyVerified(false);
+        setCurrencyInferred(false);
+        setCurrencyVerified(true);
         if (ext.merchant?.value) setMerchant(ext.merchant.value);
         if (ext.normalized_date?.value)
           setExpenseDate(ext.normalized_date.value);
         if (ext.amount_breakdown?.final_total != null)
           setAmount(String(ext.amount_breakdown.final_total));
-        if (ext.normalized_currency?.value)
-          setCurrency(ext.normalized_currency.value);
+        setCurrency("INR");
         if (ext.suggested_category) setCategory(ext.suggested_category);
       }
       setStage("ready");

@@ -253,16 +253,13 @@ export function EvaluationPanel({
             <div className={cn("evaluation-result", summary!.tone)}>
               <strong>{summary!.label}</strong>
               <p>
-                {evaluation.reimbursable_amount !== null &&
-                evaluation.reimbursable_currency === "INR"
+                {evaluation.reimbursable_amount !== null
                   ? "Calculated reimbursable: " +
                     formatCurrency(
                       evaluation.reimbursable_amount,
-                      evaluation.reimbursable_currency,
-                    ) +
-                    " " +
-                    evaluation.reimbursable_currency
-                  : "INR reimbursement is unresolved. Run current checks and record conversion evidence when required."}
+                      "INR",
+                    )
+                  : "Reimbursement under review."}
               </p>
             </div>
             {attention.map((r, i) => (

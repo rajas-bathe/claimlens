@@ -254,27 +254,12 @@ export function ReportsWorkspace() {
                     <td>{row.category}</td>
                     <td>{snakeToTitle(row.status)}</td>
                     <td className="amount-cell">
-                      {row.amount === null
-                        ? "INR value pending"
-                        : row.currency
-                          ? formatCurrency(row.amount, row.currency) +
-                            " " +
-                            row.currency
-                          : row.amount + " · Currency missing"}
-                      {row.originalCurrency !== "INR" && (
-                        <small>
-                          Original:{" "}
-                          {formatCurrency(
-                            row.originalAmount,
-                            row.originalCurrency,
-                          )}
-                        </small>
-                      )}
-                      {!row.confirmed && (
-                        <small>
-                          INR conversion or currency confirmation required
-                        </small>
-                      )}
+                      <strong>
+                        {formatCurrency(
+                          row.amount ?? row.originalAmount ?? 0,
+                          "INR",
+                        )}
+                      </strong>
                     </td>
                   </tr>
                 ))}
