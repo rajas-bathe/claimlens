@@ -1,25 +1,26 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import type { Expense, Evaluation, Membership, UserSession, PolicyVersion } from '@/types';
-import { formatCurrency, formatDate, snakeToTitle, cn } from '@/lib/utils';
-import Link from 'next/link';
+import { useState } from "react";
+import Link from "next/link";
+import type {
+  Expense,
+  Evaluation,
+  Membership,
+  UserSession,
+  PolicyVersion,
+  ReviewStatus,
+} from "@/types";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { currencyTotals, membershipLookup } from "@/lib/presentation";
 import {
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  HelpCircle,
-  TrendingUp,
-  XCircle,
   ArrowRight,
-  ShieldAlert,
-  Calendar,
-  DollarSign,
-  FileText,
-  User,
-  ChevronRight,
-  CheckSquare
-} from 'lucide-react';
+  ArrowUpRight,
+  Clock,
+  CircleCheck,
+  MessageCircle,
+  ReceiptText,
+  ShieldCheck,
+} from "lucide-react";
 
 interface Props {
   expenses: Expense[];
@@ -28,549 +29,372 @@ interface Props {
   policyVersions: PolicyVersion[];
   session: UserSession;
 }
+function Totals({ expenses }: { expenses: Expense[] }) {
+  const { totals, missing } = currencyTotals(expenses);
+  return (
+    <>
+      <div className="currency-totals">
+        {totals.length ? (
+          totals.map(([code, amount]) => (
+            <span key={code}>
+              {formatCurrency(amount, code)} <small>{code}</small>
+            </span>
+          ))
+        ) : (
+          <span>—</span>
+        )}
+      </div>
+      {missing > 0 && (
+        <p className="metric-note">
+          {missing} {missing === 1 ? "claim has" : "claims have"} an unresolved
+          amount or currency
+        </p>
+      )}
+    </>
+  );
+}
+const statuses: { status: ReviewStatus; label: string; color: string }[] = [
+  {
+    status: "ready_for_approval",
+    label: "Ready for approval",
+    color: "#59805a",
+  },
+  { status: "needs_review", label: "Finance review", color: "#9b8bb4" },
+  { status: "submitted", label: "Submitted", color: "#9bae77" },
+  {
+    status: "needs_information",
+    label: "Clarification needed",
+    color: "#c7a350",
+  },
+  { status: "approved", label: "Approved", color: "#345d3e" },
+  { status: "rejected", label: "Rejected", color: "#b7796b" },
+  { status: "draft", label: "Draft", color: "#bdc6b1" },
+];
 
 export function FinanceOverviewDashboard({
   expenses,
   evaluations,
   memberships,
   policyVersions,
-  session: _,
+  session,
 }: Props) {
-  const [timeRange, setTimeRange] = useState<'all' | '30d' | '7d'>('all');
-
-  // Filter expenses by timeRange if needed
-  const now = new Date();
-  const filteredExpenses = expenses.filter((e) => {
-    if (timeRange === 'all') return true;
-    const date = new Date(e.expense_date || e.created_at);
-    const diffDays = (now.getTime() - date.getTime()) / (1000 * 3600 * 24);
-    if (timeRange === '7d') return diffDays <= 7;
-    if (timeRange === '30d') return diffDays <= 30;
-    return true;
+  const [range, setRange] = useState<"all" | "30d" | "7d">("all");
+  const [now] = useState(() => Date.now());
+  const filtered = expenses.filter((e) => {
+    if (range === "all") return true;
+    const age = (now - new Date(e.created_at).getTime()) / 86400000;
+    return age >= 0 && age <= (range === "7d" ? 7 : 30);
   });
-
-  // Metric 1: Claims awaiting action (submitted + needs_review)
-  const awaitingAction = filteredExpenses.filter(
-    (e) => e.review_status === 'needs_review' || e.review_status === 'submitted'
+  const pending = filtered.filter((e) =>
+    ["submitted", "needs_review"].includes(e.review_status),
   );
-  // Metric 2: Ready for approval
-  const readyForApproval = filteredExpenses.filter((e) => e.review_status === 'ready_for_approval');
-  const readyTotal = readyForApproval.reduce(
-    (sum, e) => sum + (e.converted_amount ?? e.original_amount ?? 0),
-    0
+  const ready = filtered.filter(
+    (e) => e.review_status === "ready_for_approval",
   );
-  // Metric 3: Action required from employees
-  const needsInfo = filteredExpenses.filter((e) => e.review_status === 'needs_information');
-  // Metric 4: Approved period total
-  const approvedClaims = filteredExpenses.filter((e) => e.review_status === 'approved');
-  const approvedTotal = approvedClaims.reduce(
-    (sum, e) => sum + (e.converted_amount ?? e.original_amount ?? 0),
-    0
-  );
-  // Metric 5: Rejected
-  const rejectedClaims = filteredExpenses.filter((e) => e.review_status === 'rejected');
-
-  // Total amount submitted
-  const totalSubmittedAmount = filteredExpenses.reduce(
-    (sum, e) => sum + (e.converted_amount ?? e.original_amount ?? 0),
-    0
-  );
-
-  // Compliance rate: claims that passed clean without exceptions
-  const cleanPassCount = readyForApproval.length + approvedClaims.length;
-  const evaluatedCount = filteredExpenses.filter((e) => e.review_status !== 'draft').length;
-  const complianceRate = evaluatedCount > 0 ? Math.round((cleanPassCount / evaluatedCount) * 100) : 100;
-
-  // Active policy info
-  const activePolicy = policyVersions.find((p) => p.status === 'active');
-
-  // Map employee IDs to names
-  const memberMap = new Map<string, Membership>();
-  for (const m of memberships) {
-    memberMap.set(m.id, m);
+  const info = filtered.filter((e) => e.review_status === "needs_information");
+  const approved = filtered.filter((e) => e.review_status === "approved");
+  const members = membershipLookup(memberships);
+  const active = policyVersions.find((p) => p.status === "active");
+  const buckets = new Map<string, number>();
+  for (const expense of filtered) {
+    const date = expense.created_at?.slice(0, 10);
+    if (date) buckets.set(date, (buckets.get(date) ?? 0) + 1);
   }
-
-  // Aggregate evaluations to analyze exception drivers
-  const evalMap = new Map<string, Evaluation>();
-  for (const ev of evaluations) {
-    if (!evalMap.has(ev.expense_id)) {
-      evalMap.set(ev.expense_id, ev);
+  const dates = [...buckets.keys()].sort().slice(-8);
+  const max = Math.max(1, ...dates.map((d) => buckets.get(d)!));
+  const latest = new Map<string, Evaluation>();
+  for (const evaluation of evaluations) {
+    const previous = latest.get(evaluation.expense_id);
+    if (!previous || evaluation.evaluated_at > previous.evaluated_at)
+      latest.set(evaluation.expense_id, evaluation);
+  }
+  const findings = new Map<string, Set<string>>();
+  for (const expense of filtered) {
+    const evaluation = latest.get(expense.id);
+    if (!evaluation) continue;
+    for (const rule of evaluation.rule_results) {
+      if (!["fail", "unknown"].includes(rule.outcome)) continue;
+      const label =
+        rule.outcome === "unknown"
+          ? "Checks needing clarification"
+          : rule.rule_type?.replace(/_/g, " ") || "Policy issues";
+      if (!findings.has(label)) findings.set(label, new Set());
+      findings.get(label)!.add(expense.id);
+    }
+    if (evaluation.duplicate_findings?.length) {
+      if (!findings.has("Potential duplicate receipts"))
+        findings.set("Potential duplicate receipts", new Set());
+      findings.get("Potential duplicate receipts")!.add(expense.id);
     }
   }
-
-  // Count exception drivers across latest evaluations
-  const exceptionCounts: Record<string, number> = {
-    'Office meal cap exceeded': 0,
-    'Missing client / business purpose': 0,
-    'Prohibited line items (Alcohol, etc.)': 0,
-    'Duplicate submission detected': 0,
-    'Daily / city meal limit exceeded': 0,
-    'No applicable policy on receipt date': 0,
-  };
-
-  for (const exp of filteredExpenses) {
-    const ev = evalMap.get(exp.id);
-    if (!ev) {
-      if (exp.review_status === 'approved') {
-        // legacy / override without recorded eval
-      }
-      continue;
-    }
-    if (ev.duplicate_findings && ev.duplicate_findings.length > 0) {
-      exceptionCounts['Duplicate submission detected']++;
-    }
-    for (const r of ev.rule_results) {
-      if (r.outcome === 'fail' || r.outcome === 'unknown') {
-        if (r.rule_id.includes('per_expense_cap')) exceptionCounts['Office meal cap exceeded']++;
-        else if (r.rule_id.includes('client_name') || r.rule_id.includes('business_purpose'))
-          exceptionCounts['Missing client / business purpose']++;
-        else if (r.rule_id.includes('prohibited') || r.rule_id.includes('item_restrictions'))
-          exceptionCounts['Prohibited line items (Alcohol, etc.)']++;
-        else if (r.rule_id.includes('daily_limit') || r.rule_id.includes('city_limit'))
-          exceptionCounts['Daily / city meal limit exceeded']++;
-        else if (r.rule_id.includes('effective_date') || r.message.toLowerCase().includes('policy'))
-          exceptionCounts['No applicable policy on receipt date']++;
-      }
-    }
-  }
-
-  // Sorted exception drivers
-  const sortedExceptions = Object.entries(exceptionCounts)
-    .filter(([_, count]) => count > 0)
-    .sort((a, b) => b[1] - a[1]);
-
-  // Timeline / Trend grouping (by date)
-  const dateBuckets: Record<string, { count: number; amount: number }> = {};
-  for (const e of filteredExpenses) {
-    const d = e.expense_date ?? (e.created_at ? e.created_at.slice(0, 10) : '2026-03-01');
-    if (!dateBuckets[d]) dateBuckets[d] = { count: 0, amount: 0 };
-    dateBuckets[d].count += 1;
-    dateBuckets[d].amount += e.converted_amount ?? e.original_amount ?? 0;
-  }
-  const sortedDates = Object.keys(dateBuckets).sort().slice(-10); // last 10 dates
-  const maxDayAmount = Math.max(...sortedDates.map((d) => dateBuckets[d]?.amount ?? 0), 100);
-
-  // Urgent action queue preview (up to 5 claims needing review or submitted)
-  const urgentQueue = filteredExpenses
-    .filter((e) => ['needs_review', 'submitted', 'needs_information'].includes(e.review_status))
+  const drivers = [...findings]
+    .map(([label, ids]) => ({ label, count: ids.size }))
+    .sort((a, b) => b.count - a.count)
     .slice(0, 5);
-
+  const priority = [...pending, ...info].slice(0, 5);
   return (
-    <div className="space-y-8">
-      {/* Header with Title and Time Range Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <div className="page-heading">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Finance Overview</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Real-time expense metrics, compliance trends, and approval workflows.
+          <p className="page-kicker">THE BIG PICTURE</p>
+          <h1>Finance overview</h1>
+          <p>
+            A clearer view of what’s moving, and what needs you.
+            <br />
+            {session.company.name} · {filtered.length} claims in this view
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-md border border-gray-200 bg-white p-1 text-xs font-medium text-gray-700 shadow-sm">
-            {(['all', '30d', '7d'] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setTimeRange(r)}
-                className={cn(
-                  'px-3 py-1.5 rounded transition-colors',
-                  timeRange === r ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-gray-900'
-                )}
-              >
-                {r === 'all' ? 'All Time' : r === '30d' ? 'Last 30 Days' : 'Last 7 Days'}
-              </button>
-            ))}
+        <div className="range-controls" aria-label="Submission date range">
+          {(["all", "30d", "7d"] as const).map((r) => (
+            <button
+              key={r}
+              aria-pressed={range === r}
+              onClick={() => setRange(r)}
+            >
+              {r === "all"
+                ? "All time"
+                : r === "30d"
+                  ? "Last 30 days"
+                  : "Last 7 days"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="metric-grid" aria-live="polite">
+        <div className="metric metric-featured">
+          <div className="metric-label">
+            Awaiting review <Clock />
           </div>
-          <Link
-            href="/dashboard/finance/review"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm"
-          >
-            Go to Review Queue
-            <ArrowRight className="w-3.5 h-3.5" />
+          <div className="metric-value">{pending.length}</div>
+          <p className="metric-note">Submitted or awaiting finance review</p>
+          <Link href="/dashboard/finance/review">
+            Review claims <ArrowRight size={13} />
           </Link>
         </div>
-      </div>
-
-      {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Awaiting Action */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider">Awaiting Review</span>
-            <span className="p-2 bg-purple-50 text-purple-700 rounded-md">
-              <Clock className="w-4 h-4" />
-            </span>
+        <div className="metric">
+          <div className="metric-label">
+            Ready for approval <CircleCheck />
           </div>
-          <div className="mt-3">
-            <div className="text-3xl font-semibold text-gray-900 tabular-nums">
-              {awaitingAction.length}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Exceptions requiring Finance assessment
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
-            <span className="text-purple-700 font-medium">Needs Attention</span>
-            <Link
-              href="/dashboard/finance/review"
-              className="text-gray-500 hover:text-blue-600 flex items-center gap-0.5"
-            >
-              Open Queue <ChevronRight className="w-3 h-3" />
-            </Link>
-          </div>
+          <div className="metric-value">{ready.length}</div>
+          <p className="metric-note">
+            Checks complete. Decision still required.
+          </p>
+          <Link href="/dashboard/finance/review">
+            Open review queue <ArrowRight size={13} />
+          </Link>
         </div>
-
-        {/* Card 2: Ready for Approval */}
-        <div className="bg-white border border-teal-200 rounded-lg p-5 shadow-sm bg-gradient-to-br from-white to-teal-50/20">
-          <div className="flex items-center justify-between text-teal-700">
-            <span className="text-xs font-medium uppercase tracking-wider">Ready for Approval</span>
-            <span className="p-2 bg-teal-100/70 text-teal-800 rounded-md">
-              <CheckSquare className="w-4 h-4" />
-            </span>
+        <div className="metric">
+          <div className="metric-label">
+            Clarification needed <MessageCircle />
           </div>
-          <div className="mt-3">
-            <div className="text-3xl font-semibold text-gray-900 tabular-nums">
-              {readyForApproval.length}
-            </div>
-            <p className="text-xs text-teal-700 font-medium mt-1">
-              {formatCurrency(readyTotal, 'USD')} total validated clean
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-teal-100 flex items-center justify-between text-xs">
-            <span className="text-teal-700 font-medium">1-Click Bulk Eligible</span>
-            <Link
-              href="/dashboard/finance/review"
-              className="text-teal-800 font-medium hover:underline flex items-center gap-0.5"
-            >
-              Approve Now <ChevronRight className="w-3 h-3" />
-            </Link>
-          </div>
+          <div className="metric-value">{info.length}</div>
+          <p className="metric-note">Waiting for more detail from employees</p>
         </div>
-
-        {/* Card 3: Action Required from Employee */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider">Info Requested</span>
-            <span className="p-2 bg-amber-50 text-amber-700 rounded-md">
-              <HelpCircle className="w-4 h-4" />
-            </span>
+        <div className="metric">
+          <div className="metric-label">
+            Approved claim value <ShieldCheck />
           </div>
-          <div className="mt-3">
-            <div className="text-3xl font-semibold text-gray-900 tabular-nums">
-              {needsInfo.length}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Awaiting clarification from employees
-            </p>
+          <div className="metric-value">
+            <Totals expenses={approved} />
           </div>
-          <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-            <span>Pending Employee Resubmission</span>
-          </div>
-        </div>
-
-        {/* Card 4: Approved Period Reimbursement */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider">Approved Total</span>
-            <span className="p-2 bg-green-50 text-green-700 rounded-md">
-              <CheckCircle2 className="w-4 h-4" />
-            </span>
-          </div>
-          <div className="mt-3">
-            <div className="text-3xl font-semibold text-gray-900 tabular-nums">
-              {formatCurrency(approvedTotal, 'USD')}
-            </div>
-            <p className="text-xs text-green-700 font-medium mt-1">
-              {approvedClaims.length} claims approved for payout
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-            <span>Compliance Rate: <strong className="text-gray-900 font-semibold">{complianceRate}%</strong></span>
-          </div>
+          <p className="metric-note">
+            {approved.length} approved · Payment is not tracked here.
+          </p>
         </div>
       </div>
-
-      {/* Visual Charts & Breakdown Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart 1: Submission Volume & Spending Velocity (2 cols) */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+      <div className="dashboard-grid">
+        <section className="panel">
+          <div className="panel-heading">
             <div>
-              <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-                Submission & Spending Trends
-              </h2>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Daily expense volume and dollar amounts processed by ClaimLens
+              <h2>Receipts coming in</h2>
+              <p>
+                Claim count by submission date. Each bar is one recorded day.
               </p>
             </div>
-            <div className="text-right">
-              <span className="text-xs text-gray-400">Total Volume</span>
-              <p className="text-sm font-semibold text-gray-900 tabular-nums">
-                {formatCurrency(totalSubmittedAmount, 'USD')}
-              </p>
-            </div>
+            <ReceiptText size={18} className="text-gray-400" />
           </div>
-
-          {/* Bar Chart Visualization */}
-          {sortedDates.length === 0 ? (
-            <div className="py-16 text-center text-gray-400 text-sm">No expenses in selected range</div>
-          ) : (
-            <div className="space-y-4">
-              <div className="h-48 flex items-end gap-3 pt-6 px-2">
-                {sortedDates.map((date) => {
-                  const b = dateBuckets[date]!;
-                  const heightPct = Math.max(Math.round((b.amount / maxDayAmount) * 100), 8);
-                  return (
-                    <div key={date} className="flex-1 flex flex-col items-center gap-1 group relative">
-                      {/* Tooltip on hover */}
-                      <div className="absolute -top-12 bg-gray-900 text-white text-[11px] rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg z-10">
-                        {date}: {formatCurrency(b.amount, 'USD')} ({b.count} claims)
-                      </div>
-                      <div className="w-full bg-blue-50 group-hover:bg-blue-100 rounded-t flex flex-col justify-end h-full transition-colors">
-                        <div
-                          style={{ height: `${heightPct}%` }}
-                          className="w-full bg-blue-600 group-hover:bg-blue-700 rounded-t transition-all"
-                        />
-                      </div>
-                      <span className="text-[10px] text-gray-500 truncate max-w-full font-mono mt-1">
-                        {date.slice(5)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-gray-100">
-                <span>Earliest: {sortedDates[0]}</span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded bg-blue-600 inline-block" /> Reimbursable Amount ($)
+          {dates.length ? (
+            <>
+              <div className="chart-meta">
+                <span>Claims · scale 0–{max}</span>
+                <span>
+                  Last {dates.length} recorded{" "}
+                  {dates.length === 1 ? "day" : "days"}
                 </span>
-                <span>Latest: {sortedDates[sortedDates.length - 1]}</span>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Section 2: Review Status Distribution & Policy Summary (1 col) */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="border-b border-gray-100 pb-4 mb-4">
-              <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-                Status Distribution
-              </h2>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Current lifecycle state across {filteredExpenses.length} claims
-              </p>
-            </div>
-
-            {/* Segmented Distribution Bar */}
-            <div className="space-y-3">
-              <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden flex">
-                {filteredExpenses.length > 0 && (
-                  <>
-                    <div
-                      style={{ width: `${(readyForApproval.length / filteredExpenses.length) * 100}%` }}
-                      className="bg-teal-500"
-                      title={`Ready: ${readyForApproval.length}`}
-                    />
-                    <div
-                      style={{ width: `${(awaitingAction.length / filteredExpenses.length) * 100}%` }}
-                      className="bg-purple-500"
-                      title={`Awaiting Action: ${awaitingAction.length}`}
-                    />
-                    <div
-                      style={{ width: `${(needsInfo.length / filteredExpenses.length) * 100}%` }}
-                      className="bg-amber-500"
-                      title={`Info Needed: ${needsInfo.length}`}
-                    />
-                    <div
-                      style={{ width: `${(approvedClaims.length / filteredExpenses.length) * 100}%` }}
-                      className="bg-green-500"
-                      title={`Approved: ${approvedClaims.length}`}
-                    />
-                    <div
-                      style={{ width: `${(rejectedClaims.length / filteredExpenses.length) * 100}%` }}
-                      className="bg-red-500"
-                      title={`Rejected: ${rejectedClaims.length}`}
-                    />
-                  </>
-                )}
-              </div>
-
-              {/* Legend List */}
-              <div className="space-y-2 pt-2 text-xs">
-                <div className="flex items-center justify-between text-gray-700">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
-                    Ready for Approval
-                  </span>
-                  <span className="font-semibold tabular-nums">{readyForApproval.length}</span>
-                </div>
-                <div className="flex items-center justify-between text-gray-700">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
-                    Under Review / Submitted
-                  </span>
-                  <span className="font-semibold tabular-nums">{awaitingAction.length}</span>
-                </div>
-                <div className="flex items-center justify-between text-gray-700">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                    Clarification Requested
-                  </span>
-                  <span className="font-semibold tabular-nums">{needsInfo.length}</span>
-                </div>
-                <div className="flex items-center justify-between text-gray-700">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                    Approved
-                  </span>
-                  <span className="font-semibold tabular-nums">{approvedClaims.length}</span>
-                </div>
-                <div className="flex items-center justify-between text-gray-700">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                    Rejected
-                  </span>
-                  <span className="font-semibold tabular-nums">{rejectedClaims.length}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Policy Status Box */}
-          <div className="mt-6 pt-4 border-t border-gray-100 bg-gray-50 -mx-6 -mb-6 p-4 rounded-b-lg">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-gray-700 flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-blue-600" />
-                Active Policy: v{activePolicy?.version_number ?? 1}
-              </span>
-              <Link
-                href="/dashboard/finance/policy"
-                className="text-blue-600 hover:underline font-medium"
+              <div
+                className="submission-chart"
+                role="group"
+                aria-label="Claims by submission date"
               >
-                Manage Policy
-              </Link>
+                {dates.map((date) => (
+                  <div key={date} className="chart-column">
+                    <button
+                      className="chart-bar"
+                      style={{ height: (buckets.get(date)! / max) * 100 + "%" }}
+                      aria-label={
+                        formatDate(date) + ": " + buckets.get(date) + " claims"
+                      }
+                    >
+                      <span>{buckets.get(date)}</span>
+                      <span className="chart-tooltip">
+                        {formatDate(date)} · {buckets.get(date)}{" "}
+                        {buckets.get(date) === 1 ? "claim" : "claims"}
+                      </span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="chart-labels">
+                {dates.map((date) => (
+                  <span key={date}>{formatDate(date, "short")}</span>
+                ))}
+              </div>
+              <p className="chart-caption">
+                {formatDate(dates[0])} – {formatDate(dates.at(-1))}. Dates
+                without recorded submissions are omitted. Counts include drafts.
+              </p>
+            </>
+          ) : (
+            <div className="empty-message">
+              <ReceiptText size={28} />
+              No submissions in this period.
+              <br />
+              Try a wider date range.
             </div>
-            <p className="text-[11px] text-gray-500 mt-1">
-              Effective from {formatDate(activePolicy?.effective_from ?? '2026-01-01')} ·{' '}
-              {activePolicy?.structured_rules?.length ?? 8} configured rules active.
+          )}
+          <div className="mt-5 pt-4 border-t border-gray-100">
+            <p className="metric-note mb-2">
+              Original claim value · currencies shown separately
             </p>
+            <Totals expenses={filtered} />
           </div>
-        </div>
+        </section>
+        <section className="panel">
+          <div className="panel-heading">
+            <div>
+              <h2>Where things stand</h2>
+              <p>Every claim in this date range, by current status.</p>
+            </div>
+          </div>
+          {statuses.map(({ status, label, color }) => (
+            <div className="status-row" key={status}>
+              <span>
+                <i className="status-dot" style={{ background: color }} />
+                {label}
+              </span>
+              <strong>
+                {filtered.filter((e) => e.review_status === status).length}
+              </strong>
+            </div>
+          ))}
+          <div className="policy-summary">
+            {active ? (
+              <>
+                <Link href="/dashboard/finance/policy">
+                  <ShieldCheck size={13} /> Company policy · v
+                  {active.version_number}
+                </Link>
+                <p>
+                  Effective {formatDate(active.effective_from)} ·{" "}
+                  {active.structured_rules?.length ?? 0} configured rules
+                </p>
+              </>
+            ) : (
+              <>
+                <p>No active company policy.</p>
+                <Link href="/dashboard/finance/policy">
+                  Review policy setup <ArrowUpRight size={13} />
+                </Link>
+              </>
+            )}
+          </div>
+        </section>
       </div>
-
-      {/* Row 3: Top Policy Exception Drivers & Urgent Queue Preview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Exception Drivers */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+      <div className="dashboard-grid">
+        <section className="panel">
+          <div className="panel-heading">
             <div>
-              <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-amber-600" />
-                Policy Exception Drivers
-              </h2>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Leading triggers routing claims into human review
-              </p>
+              <h2>Next on your list</h2>
+              <p>Recent claims awaiting review or clarification.</p>
             </div>
+            <Link href="/dashboard/finance/review">View queue ↗</Link>
           </div>
-
-          {sortedExceptions.length === 0 ? (
-            <div className="py-8 text-center text-gray-400 text-sm">
-              <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2 opacity-80" />
-              No policy exceptions logged in current claims!
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {sortedExceptions.map(([driver, count]) => {
-                const maxCount = sortedExceptions[0][1];
-                const pct = Math.round((count / maxCount) * 100);
-                return (
-                  <div key={driver} className="space-y-1">
-                    <div className="flex justify-between text-xs font-medium">
-                      <span className="text-gray-800">{driver}</span>
-                      <span className="text-gray-500 tabular-nums">
-                        {count} claim{count > 1 ? 's' : ''}
-                      </span>
-                    </div>
-                    <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        style={{ width: `${pct}%` }}
-                        className={cn(
-                          'h-full rounded-full',
-                          driver.includes('cap') || driver.includes('limit')
-                            ? 'bg-amber-500'
-                            : driver.includes('Prohibited') || driver.includes('Duplicate')
-                            ? 'bg-red-500'
-                            : 'bg-blue-500'
-                        )}
-                      />
-                    </div>
+          {priority.length ? (
+            priority.map((e) => {
+              const member = members.get(e.employee_id);
+              return (
+                <div className="queue-preview-row" key={e.id}>
+                  <div className="min-w-0">
+                    <strong className="truncate">
+                      {e.merchant || "Merchant not provided"}
+                    </strong>
+                    <p>
+                      {member?.display_name ||
+                        member?.email ||
+                        "Employee details unavailable"}{" "}
+                      · {formatDate(e.expense_date)}
+                    </p>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Priority Review Items Preview */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
-            <div>
-              <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-                Priority Claims Requiring Review
-              </h2>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Claims currently blocking reimbursement
-              </p>
-            </div>
-            <Link
-              href="/dashboard/finance/review"
-              className="text-xs text-blue-600 hover:underline font-medium"
-            >
-              View All ({awaitingAction.length + needsInfo.length})
-            </Link>
-          </div>
-
-          {urgentQueue.length === 0 ? (
-            <div className="py-8 text-center text-gray-400 text-sm">
-              <CheckCircle2 className="w-8 h-8 text-teal-600 mx-auto mb-2 opacity-80" />
-              All claims reviewed! Nothing awaiting action.
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-100">
-              {urgentQueue.map((exp) => {
-                const member = memberMap.get(exp.employee_id);
-                return (
-                  <div
-                    key={exp.id}
-                    className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4 hover:bg-gray-50/50 rounded transition-colors px-1"
+                  <Link
+                    href={"/dashboard/finance/review/" + e.id}
+                    aria-label={"Review " + (e.merchant || "expense")}
                   >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {exp.merchant ?? 'Unnamed Expense'}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5 truncate">
-                        {member?.display_name || member?.email || 'Employee'} · {formatDate(exp.expense_date)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="text-sm font-semibold tabular-nums text-gray-900">
-                        {formatCurrency(exp.original_amount, exp.original_currency)}
-                      </span>
-                      <Link
-                        href={`/dashboard/finance/review/${exp.id}`}
-                        className="px-2.5 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
-                      >
-                        Review
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}
+                    <span className="whitespace-nowrap">
+                      {e.original_currency
+                        ? formatCurrency(e.original_amount, e.original_currency)
+                        : "Currency needed"}
+                    </span>
+                    <ArrowUpRight size={15} />
+                  </Link>
+                </div>
+              );
+            })
+          ) : (
+            <div className="empty-message">
+              <CircleCheck size={28} />
+              Nothing awaiting attention in this view.
             </div>
           )}
-        </div>
+        </section>
+        <section className="panel">
+          <div className="panel-heading">
+            <div>
+              <h2>What needs a closer look</h2>
+              <p>
+                Claims with findings in their latest recorded evaluation.
+                <br />
+                One claim can appear in more than one group.
+              </p>
+            </div>
+          </div>
+          {drivers.length ? (
+            <div className="finding-list">
+              {drivers.map(({ label, count }) => (
+                <div key={label}>
+                  <div className="finding-label">
+                    <span className="capitalize">{label}</span>
+                    <strong>
+                      {count} {count === 1 ? "claim" : "claims"}
+                    </strong>
+                  </div>
+                  <div className="finding-track">
+                    <div
+                      style={{ width: (count / drivers[0].count) * 100 + "%" }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-message">
+              <ShieldCheck size={28} />
+              No findings in recorded evaluations.
+              <br />
+              Unevaluated claims still need their checks.
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

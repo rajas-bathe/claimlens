@@ -210,7 +210,7 @@ export interface ExtractionResult {
 export interface ExtractionField<T> {
   value: T | null;
   confidence: 'high' | 'medium' | 'low' | null;
-  source: 'printed' | 'derived' | null;
+  source: 'printed' | 'derived' | 'handwritten' | null;
   supporting_text: string | null;
   page_ref: string | null;
 }
@@ -284,6 +284,9 @@ export type RuleType =
   | 'currency_restriction';
 
 export interface PolicyRule {
+  /** Explicit policy terms; absent values never imply a per-person multiplier. */
+  limit_basis?: 'per_claim' | 'per_attendee';
+  spending_scope?: 'employee' | 'company';
   id: string;
   type: RuleType;
   source_clause: string;

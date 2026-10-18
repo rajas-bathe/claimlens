@@ -1,0 +1,145 @@
+{
+  "description": "All images are synthetic test fixtures, not production receipts. Ground truth fixed before live calls. This is a small diagnostic set, not a general OCR accuracy benchmark.",
+  "cases": [
+    {
+      "id": "01-clean",
+      "file": "01-clean.png",
+      "provenance": "synthetic original",
+      "sha256": "ba22535e2f6a9c3c3fa722091ae4798ee68377db3c5e974a6fe18d0dc2e2296a",
+      "expected": {
+        "merchant": "Fieldnotes Cafe",
+        "date": "2026-10-12",
+        "amount": 22.0,
+        "currency": "USD",
+        "inferred": false,
+        "arithmetic": "reconciled"
+      }
+    },
+    {
+      "id": "02-handwritten",
+      "file": "02-handwritten.png",
+      "provenance": "synthetic original",
+      "sha256": "226c5a5553f636d033cff1eb05d15994c5913cc7f9c49fc6b63c2c7775f902f6",
+      "expected": {
+        "merchant": "Blue Harbor Bistro",
+        "date": "2023-10-24",
+        "amount": 55.96,
+        "currency": "USD",
+        "inferred": false,
+        "arithmetic": "reconciled",
+        "printed_total": 47.96,
+        "addition": 8.0
+      }
+    },
+    {
+      "id": "03-rotated",
+      "file": "03-rotated.png",
+      "provenance": "90-degree rotation of synthetic clean receipt",
+      "sha256": "469dd2cc3a01a6b02c5de7ab48c0363e95694733f22ced236dc2b45d5a5b7c41",
+      "expected": {
+        "merchant": "Fieldnotes Cafe",
+        "date": "2026-10-12",
+        "amount": 22.0,
+        "currency": "USD",
+        "inferred": false,
+        "arithmetic": "reconciled"
+      }
+    },
+    {
+      "id": "04-cropped",
+      "file": "04-cropped.png",
+      "provenance": "Crop removes header, date, currency and final total; subtotal remains",
+      "sha256": "26806d56d3dff8b8d95727a155a6b0422a1c0810cac03838e19f9131160798df",
+      "expected": {
+        "merchant": null,
+        "date": null,
+        "amount": null,
+        "currency": null,
+        "arithmetic": "unresolved"
+      }
+    },
+    {
+      "id": "05-faded",
+      "file": "05-faded.png",
+      "provenance": "Merchant, date, currency and total deliberately erased before fading",
+      "sha256": "e8da2145005a2466cdf1967b0be40f47bda88c7f93416763d50d73624fd1c2fb",
+      "expected": {
+        "merchant": null,
+        "date": null,
+        "amount": null,
+        "currency": null,
+        "arithmetic": "unresolved"
+      }
+    },
+    {
+      "id": "06-inconsistent",
+      "file": "06-inconsistent.png",
+      "provenance": "synthetic original",
+      "sha256": "ffb3a3ebefc976a36d7522affc40a0fcebabe2e9a17b0a2ce803a8410d436e1a",
+      "expected": {
+        "merchant": "Fieldnotes Cafe",
+        "date": "2026-10-12",
+        "amount": 30.0,
+        "currency": "USD",
+        "inferred": false,
+        "arithmetic": "inconsistent"
+      }
+    },
+    {
+      "id": "07-ambiguous-dollar",
+      "file": "07-ambiguous-dollar.png",
+      "provenance": "Synthetic receipt explicitly shows a currency symbol without an ISO code",
+      "sha256": "5687a18cd21ed3d501ab3fa2add5538c0bb81521e5f552851149375d23195c57",
+      "expected": {
+        "merchant": "Fieldnotes Cafe",
+        "date": "2026-10-12",
+        "amount": 22.0,
+        "currency": "USD",
+        "inferred": true,
+        "arithmetic": "reconciled"
+      }
+    },
+    {
+      "id": "08-eur",
+      "file": "08-eur.png",
+      "provenance": "synthetic original",
+      "sha256": "4e4aeeae9845c01d493f589335eb71a344bb1a0400da5fc2f11d13144a728d60",
+      "expected": {
+        "merchant": "Fieldnotes Cafe",
+        "date": "2026-10-12",
+        "amount": 22.0,
+        "currency": "EUR",
+        "inferred": false,
+        "arithmetic": "reconciled"
+      }
+    },
+    {
+      "id": "09-reformatted-copy",
+      "file": "09-reformatted-copy.jpg",
+      "provenance": "Same synthetic receipt, padded/resized and JPEG encoded; byte hash differs",
+      "sha256": "4538cdf0756a3e2ebf3c995e7c5bb7d3e88f3d500a309c809e8663378a9bdd40",
+      "expected": {
+        "merchant": "Fieldnotes Cafe",
+        "date": "2026-10-12",
+        "amount": 22.0,
+        "currency": "USD",
+        "inferred": false,
+        "arithmetic": "reconciled"
+      }
+    },
+    {
+      "id": "10-exact-copy",
+      "file": "10-exact-copy.png",
+      "provenance": "Byte-for-byte copy of fixture 01",
+      "sha256": "ba22535e2f6a9c3c3fa722091ae4798ee68377db3c5e974a6fe18d0dc2e2296a",
+      "expected": {
+        "merchant": "Fieldnotes Cafe",
+        "date": "2026-10-12",
+        "amount": 22.0,
+        "currency": "USD",
+        "inferred": false,
+        "arithmetic": "reconciled"
+      }
+    }
+  ]
+}

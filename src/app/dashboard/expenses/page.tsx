@@ -22,11 +22,11 @@ export default async function ExpensesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">My Expenses</h1>
+          <p className="page-kicker">YOUR RECEIPTS, IN PERSPECTIVE</p><h1 className="text-2xl font-semibold text-gray-900">My expenses</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Submit and track your expense reimbursements.
+            Keep things moving, from the first receipt to the final decision.
           </p>
         </div>
         <Link
@@ -38,6 +38,7 @@ export default async function ExpensesPage() {
         </Link>
       </div>
 
+      {!error && <div className="expense-summary" aria-label="Expense summary"><div><span>Total expenses</span><strong>{expenses?.length ?? 0}</strong></div><div><span>Needs your attention</span><strong>{expenses?.filter(e => e.review_status === 'needs_information').length ?? 0}</strong></div><div><span>Drafts to finish</span><strong>{expenses?.filter(e => e.review_status === 'draft').length ?? 0}</strong></div></div>}
       {error ? (
         <div className="rounded-md bg-red-50 border border-red-200 p-4">
           <p className="text-sm text-red-700">Failed to load expenses. Please refresh.</p>

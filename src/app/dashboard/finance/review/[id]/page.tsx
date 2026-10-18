@@ -68,7 +68,8 @@ export default async function FinanceReviewExpensePage({
     supabase
       .from('memberships')
       .select('*')
-      .eq('id', expense.employee_id)
+      .eq('user_id', expense.employee_id)
+      .eq('company_id', session.company.id)
       .single(),
     expense.expense_date
       ? supabase
@@ -111,6 +112,7 @@ export default async function FinanceReviewExpensePage({
 
   return (
     <FinanceExpenseReview
+      key={expense.id}
       expense={expense}
       evaluations={evaluations ?? []}
       events={events ?? []}

@@ -46,9 +46,9 @@ export default async function FinanceReviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Review Queue</h1>
+        <p className="page-kicker">MAKE THE NEXT MOVE</p><h1 className="text-2xl font-semibold text-gray-900">Review queue</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Review, validate, and approve submitted claims across the organization.
+          The evidence you need. The decisions that keep things moving.
         </p>
       </div>
       <FinanceReviewQueue

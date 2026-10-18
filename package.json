@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test tests/**/*.test.ts",
+    "test": "node --wasm-num-compilation-tasks=1 --liftoff-only --import tsx --test --test-concurrency=1 tests/**/*.test.ts",
     "seed": "node --env-file=.env.local scripts/seed.mjs"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@tailwindcss/turbopack": "^4",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",

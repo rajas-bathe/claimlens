@@ -21,9 +21,9 @@ export default async function PolicyPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Policy</h1>
+        <p className="page-kicker">THE RULES BEHIND THE REVIEW</p><h1 className="text-2xl font-semibold text-gray-900">Company policy</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Manage your company expense policy and structured rules.
+          Clear expectations for employees. A consistent reference for every review.
         </p>
       </div>
       <PolicyWorkspace versions={versions ?? []} session={session} />

@@ -1,38 +1,59 @@
-import { LoginForm } from '@/components/auth/LoginForm';
-import Link from 'next/link';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = { title: 'Sign in' };
-export const dynamic = 'force-dynamic';
-
+import { LoginForm } from "@/components/auth/LoginForm";
+import { Brand } from "@/components/shared/Brand";
+import Link from "next/link";
+import { ArrowLeft, ShieldCheck, ScanLine } from "lucide-react";
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Sign in" };
+export const dynamic = "force-dynamic";
 export default function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">CL</span>
+    <div className="login-page">
+      <aside className="login-story">
+        <Link href="/" aria-label="ClaimLens home">
+          <Brand light />
+        </Link>
+        <div className="login-message">
+          <span className="login-lens">
+            <ScanLine size={64} strokeWidth={1} />
+          </span>
+          <p className="eyebrow">A LITTLE CLARITY GOES A LONG WAY</p>
+          <h2>
+            Welcome to
+            <br />a clearer
+            <br />
+            <em>working day.</em>
+          </h2>
+          <p>
+            Receipts in order. Policy in perspective.
+            <br />
+            Your next step, in focus.
+          </p>
+        </div>
+        <span className="login-assurance">
+          <ShieldCheck size={17} /> Evidence first. Confident decisions.
+        </span>
+      </aside>
+      <main className="login-main">
+        <Link className="login-back" href="/">
+          <ArrowLeft size={16} /> Back to home
+        </Link>
+        <div className="login-form-wrap">
+          <div className="login-mobile-brand">
+            <Brand />
           </div>
-          <span className="font-semibold text-gray-900 text-lg">ClaimLens</span>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
-          <h1 className="text-xl font-semibold text-gray-900 mb-1">Sign in</h1>
-          <p className="text-sm text-gray-500 mb-6">Enter your work email to continue.</p>
+          <p className="eyebrow">YOUR CLAIMLENS WORKSPACE</p>
           <LoginForm searchParams={searchParams} />
+          <p className="login-note">
+            <ShieldCheck size={15} /> Access is based on your company
+            membership.
+          </p>
         </div>
-
-        <p className="mt-6 text-center text-xs text-gray-400">
-          <Link href="/" className="hover:text-gray-600 transition-colors">
-            ← Back to home
-          </Link>
-        </p>
-      </div>
+        <p className="login-bottom">Every expense. A clearer picture.</p>
+      </main>
     </div>
   );
 }

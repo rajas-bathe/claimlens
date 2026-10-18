@@ -1,0 +1,1225 @@
+{
+  "generated_at": "2026-10-18T00:45:02.290Z",
+  "sample_size": 10,
+  "fixture_type": "synthetic and transformed synthetic only",
+  "general_accuracy_claim": false,
+  "results": [
+    {
+      "id": "01-clean",
+      "provenance": "synthetic original",
+      "status": "pass",
+      "checks": [
+        {
+          "field": "merchant",
+          "expected": "Fieldnotes Cafe",
+          "actual": "Fieldnotes Cafe",
+          "pass": true
+        },
+        {
+          "field": "date",
+          "expected": "2026-10-12",
+          "actual": "2026-10-12",
+          "pass": true
+        },
+        {
+          "field": "amount",
+          "expected": 22,
+          "actual": 22,
+          "pass": true
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD",
+          "pass": true
+        },
+        {
+          "field": "inferred",
+          "expected": false,
+          "actual": false,
+          "pass": true
+        },
+        {
+          "field": "arithmetic",
+          "expected": "reconciled",
+          "actual": "reconciled",
+          "pass": true
+        }
+      ],
+      "decision": "pass",
+      "duplicates": [],
+      "evidence": {
+        "merchant": {
+          "value": "Fieldnotes Cafe",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Fieldnotes Cafe",
+          "page_ref": "1"
+        },
+        "invoice_number": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_date": {
+          "value": "2026-10-12",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Date: 2026-10-12",
+          "page_ref": "1"
+        },
+        "normalized_date": {
+          "value": "2026-10-12",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "2026-10-12",
+          "page_ref": "1"
+        },
+        "printed_currency": {
+          "value": "USD",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Currency: USD",
+          "page_ref": "1"
+        },
+        "normalized_currency": {
+          "value": "USD",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "USD",
+          "page_ref": "1"
+        },
+        "subtotal": {
+          "value": 20,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Subtotal 20.00",
+          "page_ref": "1"
+        },
+        "tax": {
+          "value": 2,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Tax 2.00",
+          "page_ref": "1"
+        },
+        "service_charge": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "tip": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "discount": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "total": {
+          "value": 22,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "TOTAL 22.00",
+          "page_ref": "1"
+        },
+        "line_items": [
+          {
+            "description": "Sandwich",
+            "quantity": 1,
+            "unit_price": 12,
+            "amount": 12,
+            "page_ref": "1"
+          },
+          {
+            "description": "Coffee",
+            "quantity": 1,
+            "unit_price": 8,
+            "amount": 8,
+            "page_ref": "1"
+          }
+        ],
+        "itemization_completeness": "complete",
+        "missing_fields": [
+          "invoice_number"
+        ],
+        "ambiguous_fields": [],
+        "unreadable_regions": [],
+        "conflicting_fields": [],
+        "arithmetic_check": {
+          "calculated_total": 22,
+          "printed_total": 22,
+          "discrepancy": 0,
+          "note": "Items 20.00 + tax 2.00 = 22.00; receipt total 22.00."
+        },
+        "suggested_category": "Business meals",
+        "extraction_notes": [
+          "Synthetic evaluation fixture - not a real purchase."
+        ],
+        "page_references": {},
+        "amount_breakdown": {
+          "items_subtotal": 20,
+          "tax": 2,
+          "printed_total": 22,
+          "handwritten_addition": null,
+          "handwritten_addition_label": null,
+          "final_total": 22,
+          "formula_explanation": "Items 20.00 + tax 2.00 = 22.00; receipt total 22.00."
+        },
+        "currency_is_inferred": false,
+        "handwritten_addition": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "handwritten_addition_label": null,
+        "handwritten_final_total": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_total": {
+          "value": 22,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "22.00",
+          "page_ref": "1"
+        }
+      }
+    },
+    {
+      "id": "02-handwritten",
+      "provenance": "synthetic original",
+      "status": "pass",
+      "checks": [
+        {
+          "field": "merchant",
+          "expected": "Blue Harbor Bistro",
+          "actual": "Blue Harbor Bistro",
+          "pass": true
+        },
+        {
+          "field": "date",
+          "expected": "2023-10-24",
+          "actual": "2023-10-24",
+          "pass": true
+        },
+        {
+          "field": "amount",
+          "expected": 55.96,
+          "actual": 55.96,
+          "pass": true
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD",
+          "pass": true
+        },
+        {
+          "field": "inferred",
+          "expected": false,
+          "actual": false,
+          "pass": true
+        },
+        {
+          "field": "arithmetic",
+          "expected": "reconciled",
+          "actual": "reconciled",
+          "pass": true
+        },
+        {
+          "field": "printed_total",
+          "expected": 47.96,
+          "actual": 47.96,
+          "pass": true
+        },
+        {
+          "field": "addition",
+          "expected": 8,
+          "actual": 8,
+          "pass": true
+        }
+      ],
+      "decision": "unknown",
+      "duplicates": [],
+      "evidence": {
+        "merchant": {
+          "value": "Blue Harbor Bistro",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Blue Harbor Bistro",
+          "page_ref": "1"
+        },
+        "invoice_number": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_date": {
+          "value": "2023-10-24",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Date: 2023-10-24",
+          "page_ref": "1"
+        },
+        "normalized_date": {
+          "value": "2023-10-24",
+          "confidence": "high",
+          "source": "derived",
+          "supporting_text": "2023-10-24",
+          "page_ref": "1"
+        },
+        "printed_currency": {
+          "value": "USD",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Currency: USD",
+          "page_ref": "1"
+        },
+        "normalized_currency": {
+          "value": "USD",
+          "confidence": "high",
+          "source": "derived",
+          "supporting_text": "USD",
+          "page_ref": "1"
+        },
+        "subtotal": {
+          "value": 44,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Subtotal 44.00",
+          "page_ref": "1"
+        },
+        "tax": {
+          "value": 3.96,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Tax 3.96",
+          "page_ref": "1"
+        },
+        "service_charge": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "tip": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "discount": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "total": {
+          "value": 55.96,
+          "confidence": "high",
+          "source": "handwritten",
+          "supporting_text": "Final total 55.96",
+          "page_ref": "1"
+        },
+        "line_items": [
+          {
+            "description": "Caesar Salad",
+            "quantity": 1,
+            "unit_price": 16,
+            "amount": 16,
+            "page_ref": "1"
+          },
+          {
+            "description": "Grilled Salmon",
+            "quantity": 1,
+            "unit_price": 28,
+            "amount": 28,
+            "page_ref": "1"
+          }
+        ],
+        "itemization_completeness": "complete",
+        "missing_fields": [
+          "invoice_number"
+        ],
+        "ambiguous_fields": [],
+        "unreadable_regions": [],
+        "conflicting_fields": [],
+        "arithmetic_check": {
+          "calculated_total": 55.96,
+          "printed_total": 55.96,
+          "discrepancy": 0,
+          "note": "Items 44.00 + tax 3.96 + addition 8.00 = 55.96; receipt total 55.96."
+        },
+        "suggested_category": "Business meals",
+        "extraction_notes": [
+          "Handwritten addition of 8.00 is present but not explicitly labeled as a tip.",
+          "Final total is handwritten."
+        ],
+        "page_references": {},
+        "amount_breakdown": {
+          "items_subtotal": 44,
+          "tax": 3.96,
+          "printed_total": 47.96,
+          "handwritten_addition": 8,
+          "handwritten_addition_label": "unlabelled addition",
+          "final_total": 55.96,
+          "formula_explanation": "Items 44.00 + tax 3.96 + addition 8.00 = 55.96; receipt total 55.96."
+        },
+        "currency_is_inferred": false,
+        "handwritten_addition": {
+          "value": 8,
+          "confidence": "high",
+          "source": "handwritten",
+          "supporting_text": "Addition +8.00",
+          "page_ref": "1"
+        },
+        "handwritten_addition_label": "unlabelled addition",
+        "handwritten_final_total": {
+          "value": 55.96,
+          "confidence": "high",
+          "source": "handwritten",
+          "supporting_text": "Final total 55.96",
+          "page_ref": "1"
+        },
+        "printed_total": {
+          "value": 47.96,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Printed total 47.96",
+          "page_ref": "1"
+        }
+      }
+    },
+    {
+      "id": "03-rotated",
+      "provenance": "90-degree rotation of synthetic clean receipt",
+      "status": "pass",
+      "checks": [
+        {
+          "field": "merchant",
+          "expected": "Fieldnotes Cafe",
+          "actual": "Fieldnotes Cafe",
+          "pass": true
+        },
+        {
+          "field": "date",
+          "expected": "2026-10-12",
+          "actual": "2026-10-12",
+          "pass": true
+        },
+        {
+          "field": "amount",
+          "expected": 22,
+          "actual": 22,
+          "pass": true
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD",
+          "pass": true
+        },
+        {
+          "field": "inferred",
+          "expected": false,
+          "actual": false,
+          "pass": true
+        },
+        {
+          "field": "arithmetic",
+          "expected": "reconciled",
+          "actual": "reconciled",
+          "pass": true
+        }
+      ],
+      "decision": "pass",
+      "duplicates": [
+        {
+          "type": "probable",
+          "id": "01-clean"
+        }
+      ],
+      "evidence": {
+        "merchant": {
+          "value": "Fieldnotes Cafe",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Fieldnotes Cafe",
+          "page_ref": "1"
+        },
+        "invoice_number": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_date": {
+          "value": "2026-10-12",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Date: 2026-10-12",
+          "page_ref": "1"
+        },
+        "normalized_date": {
+          "value": "2026-10-12",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "2026-10-12",
+          "page_ref": "1"
+        },
+        "printed_currency": {
+          "value": "USD",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Currency: USD",
+          "page_ref": "1"
+        },
+        "normalized_currency": {
+          "value": "USD",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "USD",
+          "page_ref": "1"
+        },
+        "subtotal": {
+          "value": 20,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Subtotal 20.00",
+          "page_ref": "1"
+        },
+        "tax": {
+          "value": 2,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Tax 2.00",
+          "page_ref": "1"
+        },
+        "service_charge": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "tip": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "discount": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "total": {
+          "value": 22,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "TOTAL 22.00",
+          "page_ref": "1"
+        },
+        "line_items": [
+          {
+            "description": "Sandwich",
+            "quantity": 1,
+            "unit_price": 12,
+            "amount": 12,
+            "page_ref": "1"
+          },
+          {
+            "description": "Coffee",
+            "quantity": 1,
+            "unit_price": 8,
+            "amount": 8,
+            "page_ref": "1"
+          }
+        ],
+        "itemization_completeness": "complete",
+        "missing_fields": [
+          "invoice_number"
+        ],
+        "ambiguous_fields": [],
+        "unreadable_regions": [],
+        "conflicting_fields": [],
+        "arithmetic_check": {
+          "calculated_total": 22,
+          "printed_total": 22,
+          "discrepancy": 0,
+          "note": "Items 20.00 + tax 2.00 = 22.00; receipt total 22.00."
+        },
+        "suggested_category": "Business meals",
+        "extraction_notes": [
+          "Synthetic evaluation fixture - not a real purchase."
+        ],
+        "page_references": {},
+        "amount_breakdown": {
+          "items_subtotal": 20,
+          "tax": 2,
+          "printed_total": 22,
+          "handwritten_addition": null,
+          "handwritten_addition_label": null,
+          "final_total": 22,
+          "formula_explanation": "Items 20.00 + tax 2.00 = 22.00; receipt total 22.00."
+        },
+        "currency_is_inferred": false,
+        "handwritten_addition": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "handwritten_addition_label": null,
+        "handwritten_final_total": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_total": {
+          "value": 22,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "22.00",
+          "page_ref": "1"
+        }
+      }
+    },
+    {
+      "id": "04-cropped",
+      "provenance": "Crop removes header, date, currency and final total; subtotal remains",
+      "status": "pass",
+      "checks": [
+        {
+          "field": "merchant",
+          "expected": null,
+          "actual": null,
+          "pass": true
+        },
+        {
+          "field": "date",
+          "expected": null,
+          "actual": null,
+          "pass": true
+        },
+        {
+          "field": "amount",
+          "expected": null,
+          "actual": null,
+          "pass": true
+        },
+        {
+          "field": "currency",
+          "expected": null,
+          "actual": null,
+          "pass": true
+        },
+        {
+          "field": "arithmetic",
+          "expected": "unresolved",
+          "actual": "unresolved",
+          "pass": true
+        }
+      ],
+      "decision": "unknown",
+      "duplicates": [],
+      "evidence": {
+        "merchant": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "invoice_number": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_date": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "normalized_date": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_currency": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "normalized_currency": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "subtotal": {
+          "value": 20,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Subtotal 20.00",
+          "page_ref": "1"
+        },
+        "tax": {
+          "value": 2,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Tax 2.00",
+          "page_ref": "1"
+        },
+        "service_charge": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "tip": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "discount": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "total": {
+          "value": 22,
+          "confidence": "high",
+          "source": "derived",
+          "supporting_text": "20.00 + 2.00",
+          "page_ref": "1"
+        },
+        "line_items": [
+          {
+            "description": "Sandwich",
+            "quantity": null,
+            "unit_price": null,
+            "amount": 12,
+            "page_ref": "1"
+          },
+          {
+            "description": "Coffee",
+            "quantity": null,
+            "unit_price": null,
+            "amount": 8,
+            "page_ref": "1"
+          }
+        ],
+        "itemization_completeness": "complete",
+        "missing_fields": [
+          "merchant",
+          "invoice_number",
+          "printed_date",
+          "printed_currency",
+          "total"
+        ],
+        "ambiguous_fields": [],
+        "unreadable_regions": [],
+        "conflicting_fields": [],
+        "arithmetic_check": {
+          "calculated_total": null,
+          "printed_total": null,
+          "discrepancy": null,
+          "note": "Not enough independent evidence to verify arithmetic. A readable item breakdown or subtotal, tax and final total are required."
+        },
+        "suggested_category": "Business meals",
+        "extraction_notes": [
+          "The image is a partial receipt snippet.",
+          "Merchant name, date, and currency symbols are missing.",
+          "The final total was derived by summing the subtotal and tax."
+        ],
+        "page_references": {},
+        "amount_breakdown": {
+          "items_subtotal": 20,
+          "tax": 2,
+          "printed_total": null,
+          "handwritten_addition": null,
+          "handwritten_addition_label": null,
+          "final_total": null,
+          "formula_explanation": "Not enough independent evidence to verify arithmetic. A readable item breakdown or subtotal, tax and final total are required."
+        },
+        "currency_is_inferred": false,
+        "handwritten_addition": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "handwritten_final_total": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_total": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        }
+      }
+    },
+    {
+      "id": "05-faded",
+      "provenance": "Merchant, date, currency and total deliberately erased before fading",
+      "status": "pass",
+      "checks": [
+        {
+          "field": "merchant",
+          "expected": null,
+          "actual": null,
+          "pass": true
+        },
+        {
+          "field": "date",
+          "expected": null,
+          "actual": null,
+          "pass": true
+        },
+        {
+          "field": "amount",
+          "expected": null,
+          "actual": null,
+          "pass": true
+        },
+        {
+          "field": "currency",
+          "expected": null,
+          "actual": null,
+          "pass": true
+        },
+        {
+          "field": "arithmetic",
+          "expected": "unresolved",
+          "actual": "unresolved",
+          "pass": true
+        }
+      ],
+      "decision": "unknown",
+      "duplicates": [],
+      "evidence": {
+        "merchant": {
+          "value": null,
+          "confidence": "low",
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "invoice_number": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "printed_date": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "normalized_date": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "printed_currency": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "normalized_currency": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "subtotal": {
+          "value": 20,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Subtotal 20.00",
+          "page_ref": "1"
+        },
+        "tax": {
+          "value": 2,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Tax 2.00",
+          "page_ref": "1"
+        },
+        "service_charge": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "tip": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "discount": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "total": {
+          "value": null,
+          "confidence": "low",
+          "source": "printed",
+          "supporting_text": "TOTAL",
+          "page_ref": "1"
+        },
+        "line_items": [
+          {
+            "description": "Sandwich",
+            "quantity": null,
+            "unit_price": null,
+            "amount": 12,
+            "page_ref": "1"
+          },
+          {
+            "description": "Coffee",
+            "quantity": null,
+            "unit_price": null,
+            "amount": 8,
+            "page_ref": "1"
+          }
+        ],
+        "itemization_completeness": "complete",
+        "missing_fields": [
+          "merchant",
+          "date",
+          "currency",
+          "total_value"
+        ],
+        "ambiguous_fields": [],
+        "unreadable_regions": [],
+        "conflicting_fields": [],
+        "arithmetic_check": {
+          "calculated_total": null,
+          "printed_total": null,
+          "discrepancy": null,
+          "note": "Not enough independent evidence to verify arithmetic. A readable item breakdown or subtotal, tax and final total are required."
+        },
+        "suggested_category": "Business meals",
+        "extraction_notes": [
+          "Synthetic evaluation fixture.",
+          "The total amount field is present but empty."
+        ],
+        "page_references": {},
+        "amount_breakdown": {
+          "items_subtotal": 20,
+          "tax": 2,
+          "printed_total": null,
+          "handwritten_addition": null,
+          "handwritten_addition_label": null,
+          "final_total": null,
+          "formula_explanation": "Not enough independent evidence to verify arithmetic. A readable item breakdown or subtotal, tax and final total are required."
+        },
+        "currency_is_inferred": false,
+        "handwritten_addition": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "handwritten_addition_label": null,
+        "handwritten_final_total": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": "1"
+        },
+        "printed_total": {
+          "value": null,
+          "confidence": "low",
+          "source": "printed",
+          "supporting_text": "TOTAL",
+          "page_ref": "1"
+        }
+      }
+    },
+    {
+      "id": "06-inconsistent",
+      "provenance": "synthetic original",
+      "status": "pass",
+      "checks": [
+        {
+          "field": "merchant",
+          "expected": "Fieldnotes Cafe",
+          "actual": "Fieldnotes Cafe",
+          "pass": true
+        },
+        {
+          "field": "date",
+          "expected": "2026-10-12",
+          "actual": "2026-10-12",
+          "pass": true
+        },
+        {
+          "field": "amount",
+          "expected": 30,
+          "actual": 30,
+          "pass": true
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD",
+          "pass": true
+        },
+        {
+          "field": "inferred",
+          "expected": false,
+          "actual": false,
+          "pass": true
+        },
+        {
+          "field": "arithmetic",
+          "expected": "inconsistent",
+          "actual": "inconsistent",
+          "pass": true
+        }
+      ],
+      "decision": "fail",
+      "duplicates": [],
+      "evidence": {
+        "merchant": {
+          "value": "Fieldnotes Cafe",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Fieldnotes Cafe",
+          "page_ref": "1"
+        },
+        "invoice_number": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_date": {
+          "value": "2026-10-12",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Date: 2026-10-12",
+          "page_ref": "1"
+        },
+        "normalized_date": {
+          "value": "2026-10-12",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "2026-10-12",
+          "page_ref": "1"
+        },
+        "printed_currency": {
+          "value": "USD",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Currency: USD",
+          "page_ref": "1"
+        },
+        "normalized_currency": {
+          "value": "USD",
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "USD",
+          "page_ref": "1"
+        },
+        "subtotal": {
+          "value": 20,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Subtotal 20.00",
+          "page_ref": "1"
+        },
+        "tax": {
+          "value": 2,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "Tax 2.00",
+          "page_ref": "1"
+        },
+        "service_charge": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "tip": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "discount": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "total": {
+          "value": 30,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "TOTAL 30.00",
+          "page_ref": "1"
+        },
+        "line_items": [
+          {
+            "description": "Sandwich",
+            "quantity": null,
+            "unit_price": null,
+            "amount": 12,
+            "page_ref": "1"
+          },
+          {
+            "description": "Coffee",
+            "quantity": null,
+            "unit_price": null,
+            "amount": 8,
+            "page_ref": "1"
+          }
+        ],
+        "itemization_completeness": "complete",
+        "missing_fields": [
+          "invoice_number"
+        ],
+        "ambiguous_fields": [],
+        "unreadable_regions": [],
+        "conflicting_fields": [],
+        "arithmetic_check": {
+          "calculated_total": 22,
+          "printed_total": 30,
+          "discrepancy": 8,
+          "note": "Items 20.00 + tax 2.00 = 22.00; receipt total 30.00."
+        },
+        "suggested_category": "Business meals",
+        "extraction_notes": [
+          "The printed total (30.00) is higher than the sum of the subtotal (20.00) and tax (2.00)."
+        ],
+        "page_references": {},
+        "amount_breakdown": {
+          "items_subtotal": 20,
+          "tax": 2,
+          "printed_total": 30,
+          "handwritten_addition": null,
+          "handwritten_addition_label": null,
+          "final_total": 30,
+          "formula_explanation": "Items 20.00 + tax 2.00 = 22.00; receipt total 30.00."
+        },
+        "currency_is_inferred": false,
+        "handwritten_addition": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "handwritten_addition_label": null,
+        "handwritten_final_total": {
+          "value": null,
+          "confidence": null,
+          "source": null,
+          "supporting_text": null,
+          "page_ref": null
+        },
+        "printed_total": {
+          "value": 30,
+          "confidence": "high",
+          "source": "printed",
+          "supporting_text": "TOTAL 30.00",
+          "page_ref": "1"
+        }
+      }
+    },
+    {
+      "id": "07-ambiguous-dollar",
+      "status": "provider_error",
+      "reason": "Gemini extraction failed across all candidate models: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\\nPlease retry in 23h14m58.932023371s.\",\"status\":\"RESOURCE_EXHAUSTED\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-3-flash\"},\"quotaValue\":\"20\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"83698s\"}]}}"
+    },
+    {
+      "id": "08-eur",
+      "status": "provider_error",
+      "reason": "Gemini extraction failed across all candidate models: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\\nPlease retry in 23h14m58.564698361s.\",\"status\":\"RESOURCE_EXHAUSTED\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"model\":\"gemini-3-flash\",\"location\":\"global\"},\"quotaValue\":\"20\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"83698s\"}]}}"
+    },
+    {
+      "id": "09-reformatted-copy",
+      "status": "provider_error",
+      "reason": "Gemini extraction failed across all candidate models: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\\nPlease retry in 23h14m57.996865119s.\",\"status\":\"RESOURCE_EXHAUSTED\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-3-flash\"},\"quotaValue\":\"20\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"83697s\"}]}}"
+    },
+    {
+      "id": "10-exact-copy",
+      "status": "provider_error",
+      "reason": "Gemini extraction failed across all candidate models: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\\nPlease retry in 23h14m57.57993904s.\",\"status\":\"RESOURCE_EXHAUSTED\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-3-flash\"},\"quotaValue\":\"20\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"83697s\"}]}}"
+    }
+  ]
+}

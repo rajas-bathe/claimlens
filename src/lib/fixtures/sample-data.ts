@@ -81,14 +81,15 @@ export const SAMPLE_STRUCTURED_RULES: PolicyRule[] = [
     aggregation_scope: 'daily',
     required_field: null,
     prohibited_values: null,
-    exceptions: [],
+    exceptions: [{condition:{field:'city',operator:'in',value:['New York','San Francisco','London','Zurich','Tokyo']},override:{limit:100},note:'Clause 2.3 explicitly increases the daily travel allowance in these cities.'}],
     outcome: 'block',
     categories: ['Business meals'],
-    cities: ['New York', 'San Francisco', 'London', 'Zurich', 'Tokyo'],
+    cities: null,
     trip_contexts: ['business_trip'],
   },
   {
     id: 'rule_client_entertainment_attendee_cap',
+    limit_basis: 'per_attendee',
     type: 'per_expense_cap',
     source_clause: 'Clause 3.2',
     supporting_text: 'Client meals are capped at $100.00 USD per attendee.',
@@ -137,6 +138,18 @@ export const SAMPLE_STRUCTURED_RULES: PolicyRule[] = [
     categories: null,
     cities: null,
     trip_contexts: null,
+  },
+  {
+    id:'policy_client_name_required',type:'client_entertainment_requirement',source_clause:'Clause 3.1',supporting_text:'Client entertainment expenses require explicit entry of the verified Client/Company Name and the Total Number of Attendees.',
+    conditions:[],exceptions:[],limit:null,limit_currency:null,aggregation_scope:null,required_field:'client_name',prohibited_values:null,outcome:'require_field',categories:['Client entertainment'],cities:null,trip_contexts:null
+  },
+  {
+    id:'policy_client_attendees_required',type:'required_field',source_clause:'Clause 3.1',supporting_text:'Client entertainment expenses require explicit entry of the verified Client/Company Name and the Total Number of Attendees.',
+    conditions:[],exceptions:[],limit:null,limit_currency:null,aggregation_scope:null,required_field:'attendee_count',prohibited_values:null,outcome:'require_field',categories:['Client entertainment'],cities:null,trip_contexts:null
+  },
+  {
+    id:'policy_itemization_mandatory',type:'itemization_requirement',source_clause:'Clause 1.2',supporting_text:'Itemized receipts are mandatory for all hotel accommodations and for any meal claim exceeding $50.00 USD.',
+    conditions:[{field:'original_amount',operator:'gt',value:50}],exceptions:[],limit:null,limit_currency:null,aggregation_scope:null,required_field:null,prohibited_values:null,outcome:'require_field',categories:['Business meals'],cities:null,trip_contexts:null
   },
 ];
 

@@ -21,9 +21,9 @@ export default async function BatchImportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Batch Import</h1>
+        <p className="page-kicker">MANY RECEIPTS. ONE WORKSPACE.</p><h1 className="text-2xl font-semibold text-gray-900">Batch import</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Upload multiple receipts and assign them to employees.
+          Bring receipts into focus, with an employee assigned to each one.
         </p>
       </div>
       <BatchImportWorkspace members={members ?? []} session={session} />
