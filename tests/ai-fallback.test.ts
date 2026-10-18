@@ -481,7 +481,7 @@ test("Verification 8: Error classification distinguishes transient, quota, and c
 
 test("Verification 9: Retry prevents duplicate records and conflicting saves via optimistic concurrency", () => {
   // Simulate expense state
-  let currentVersion = 1;
+  const currentVersion = 1;
   const expense = {
     id: "expense-123",
     version: currentVersion,

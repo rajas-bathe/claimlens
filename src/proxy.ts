@@ -1,25 +1,25 @@
-import { createServerClient } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require auth
-  const publicPaths = ['/', '/login', '/auth/callback'];
+  const publicPaths = ["/", "/login", "/auth/callback"];
   const isPublic = publicPaths.some(
-    (p) => pathname === p || pathname.startsWith('/auth/')
+    (p) => pathname === p || pathname.startsWith("/auth/"),
   );
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // If Supabase env vars are not yet configured, allow public pages to render cleanly
-  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your-project')) {
+  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes("your-project")) {
     if (!isPublic) {
       const url = request.nextUrl.clone();
-      url.pathname = '/login';
+      url.pathname = "/login";
       return NextResponse.redirect(url);
     }
     return response;
@@ -33,11 +33,11 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
+            request.cookies.set(name, value),
           );
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+            response.cookies.set(name, value, options),
           );
         },
       },
@@ -50,27 +50,29 @@ export async function middleware(request: NextRequest) {
 
     if (!user && !isPublic) {
       const url = request.nextUrl.clone();
-      url.pathname = '/login';
-      url.searchParams.set('next', pathname);
+      url.pathname = "/login";
+      url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
 
-    if (user && (pathname === '/login' || pathname === '/')) {
+    if (user && (pathname === "/login" || pathname === "/")) {
       const url = request.nextUrl.clone();
-      url.pathname = '/dashboard';
+      url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
-  } catch (err) {
+  } catch {
     // If Supabase auth call fails (e.g. invalid credentials or network error)
     if (!isPublic) {
       const url = request.nextUrl.clone();
-      url.pathname = '/login';
+      url.pathname = "/login";
       return NextResponse.redirect(url);
     }
   }
 
   return response;
 }
+
+export default proxy;
 
 export const config = {
   matcher: [
@@ -81,6 +83,6 @@ export const config = {
      * - favicon.ico
      * - public folder files
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

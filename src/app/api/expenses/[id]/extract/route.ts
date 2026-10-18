@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/supabase/auth";
 import { createServiceClient } from "@/lib/supabase/server";
-import { extractReceipt } from "@/lib/gemini/extract";
 
 // POST /api/expenses/[id]/extract
 // Downloads the receipt from storage, calls Gemini, saves extraction result
@@ -267,7 +266,7 @@ async function markExtractionFailed(
       expense_id: expenseId,
       company_id: companyId,
       actor_id: actorId,
-      actor_role: (actorRole as any) ?? "employee",
+      actor_role: (actorRole as "employee" | "finance") ?? "employee",
       event_type: "extraction_failed",
       payload: {
         error: errorMsg,

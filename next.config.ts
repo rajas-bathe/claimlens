@@ -10,6 +10,20 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  experimental: {
+    cpus: 1,
+    workerThreads: false,
+  },
+  async rewrites() {
+    return {
+      fallback: [
+        {
+          source: "/:path*",
+          destination: "/",
+        },
+      ],
+    };
+  },
 };
 
 export default nextConfig;
